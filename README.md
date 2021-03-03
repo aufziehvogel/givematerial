@@ -20,5 +20,5 @@ step-by-step.
 
 Useful sets of tasks on their own:
 
-- 1.: Gives us list of vocab to learn
-- 3. + 4.: Gives us a nice collection of lyrics with the vocab they contain
+- `1.`: Gives us list of vocab to learn
+- `3. + 4.`: Gives us a nice collection of lyrics with the vocab they contain
