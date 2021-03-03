@@ -35,7 +35,7 @@ Useful sets of tasks on their own:
 - vocabulary lists:
   - FFZG has a [psycholinguistic database with frequency counts](http://megahr.ffzg.unizg.hr/en/?page_id=609) - but doesn't
     contain basic words which are irrelevant to their project
-  - [Wikipedia list](https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Serbo-Croatian_wordlist) - many mistakes with flections etc.
+  - [Wikipedia list](https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists/Serbo-Croatian_wordlist) - many mistakes with inflections etc.
   - [Mnemosyne list](https://mnemosyne-proj.org/cards/2500-english-croatian-vocabulary-cards) - saw at least one minor mistake, but in general looks OK
   - [easy-croatian.com Anki deck](https://ankiweb.net/shared/info/190661393) -
     not sorted by frequency
