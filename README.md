@@ -39,6 +39,10 @@ Useful sets of tasks on their own:
   - [Mnemosyne list](https://mnemosyne-proj.org/cards/2500-english-croatian-vocabulary-cards) - saw at least one minor mistake, but in general looks OK
   - [easy-croatian.com Anki deck](https://ankiweb.net/shared/info/190661393) -
     not sorted by frequency
+- vocabulary including frequencies:
+  - Ljubešić, Nikola, 2019, Inflectional lexicon hrLex 1.3,
+    Slovenian language resource repository CLARIN.SI,
+    http://hdl.handle.net/11356/1232. 
 
 ### Getting Started
 
