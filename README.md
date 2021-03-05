@@ -39,3 +39,37 @@ Useful sets of tasks on their own:
   - [Mnemosyne list](https://mnemosyne-proj.org/cards/2500-english-croatian-vocabulary-cards) - saw at least one minor mistake, but in general looks OK
   - [easy-croatian.com Anki deck](https://ankiweb.net/shared/info/190661393) -
     not sorted by frequency
+
+### Getting Started
+
+To get started with Croatian fetch some lyrics for your favourite artist, e.g.
+Prljavo Kazaliste:
+
+```bash
+python croatian/retrieval/tekstovi_lyrics.py \
+    --url https://tekstovi.net/2,206,0.html --output data/lyrics
+```
+
+This will download the lyrics and store them in text files in the folder
+`data/lyrics`.
+
+Next, you can use a lemmatizer to lemmatize the lyrics. Currently, we only
+support the locally installed `cstlemma`, but this will change soon.
+
+```bash
+# Install cstlemma and download Croatian models
+cd tools/cstlemma
+bash install.sh
+cd ../../
+
+./tools/cstlemma/cstlemma/cstlemma \
+    -d tools/cstlemma/models/croatian/dict \
+    -f tools/cstlemma/models/croatian/flexrules \
+    -i data/lyrics/Prljavo\ Kazaliste/Kise\ jesenje
+```
+
+### Open Issues
+
+For raw `cstlemma` you have to remove all punctuation. Otherwise words won't
+be recognized. Currently, this is not handled by the downloader because I
+think it's not needed for ReLDI.
