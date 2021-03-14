@@ -71,8 +71,12 @@ python croatian/retrieval/tekstovi_lyrics.py \
 This will download the lyrics and store them in text files in the folder
 `data/lyrics`.
 
-Next, you can use a lemmatizer to lemmatize the lyrics. Currently, we only
-support the locally installed `cstlemma`, but this will change soon.
+#### Lemmatizer
+
+Next, you can use a lemmatizer to lemmatize the lyrics. You can choose between
+`cstlemma` and `classla`.
+
+##### cstlemma
 
 ```bash
 # Install cstlemma and download Croatian models
@@ -85,6 +89,23 @@ cd ../../
     -f tools/cstlemma/models/croatian/flexrules \
     -i data/lyrics/Prljavo\ Kazaliste/Kise\ jesenje
 ```
+
+##### classla
+
+```bash
+# Install classla and download Croatian models
+pip install classla
+python -c "import classla; classla.download('hr')
+python -c "import classla; classla.download('hr', type='nonstandard')
+```
+
+classla allows you to list the lemmas including frequencies for all songs.
+This will be improved to a more useful recommendation engine later:
+
+```bash
+python croatian/list_texts.py
+```
+
 
 ### Open Issues
 
