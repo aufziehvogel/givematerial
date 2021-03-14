@@ -46,6 +46,20 @@ Useful sets of tasks on their own:
 
 ### Getting Started
 
+For vocabulary frequency analysis, download the hrLex dataset
+([Ljubešić, Nikola, 2019, Inflectional lexicon hrLex 1.3, Slovenian language resource repository CLARIN.SI](http://hdl.handle.net/11356/1232)]) and convert it to a dictionary of frequencies per
+lemma.
+
+```bash
+mkdir -p data/vocabulary
+wget https://www.clarin.si/repository/xmlui/bitstream/handle/11356/1232/hrLex_v1.3.gz -O data/vocabulary/hrLex_v1.3.gz
+gunzip data/vocabulary/hrLex_v1.3.gz
+python croatian/hrlex_frequency.py
+```
+
+These commands transform the hrLex dataset to a dictionary of frequencies per
+lemma at `data/vocabulary/word_frequencies.json`.
+
 To get started with Croatian fetch some lyrics for your favourite artist, e.g.
 Prljavo Kazaliste:
 
