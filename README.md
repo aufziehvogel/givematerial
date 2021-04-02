@@ -95,8 +95,8 @@ cd ../../
 ```bash
 # Install classla and download Croatian models
 pip install classla
-python -c "import classla; classla.download('hr')
-python -c "import classla; classla.download('hr', type='nonstandard')
+python -c "import classla; classla.download('hr')"
+python -c "import classla; classla.download('hr', type='nonstandard')"
 ```
 
 classla allows you to list the lemmas including frequencies for all songs.
