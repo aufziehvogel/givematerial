@@ -20,9 +20,19 @@ def iterate_lyrics(folder: Path):
         yield (artist, title, text)
 
 
+def read_words_file(path: Path):
+    with open(path) as f:
+        return [word.strip() for word in f]
+
+
 if __name__ == '__main__':
     freqs_file = Path('data/vocabulary/word_frequencies.json')
     lyrics_folder = Path('data/lyrics/')
+    known_words_file = Path('data/known')
+    learning_words_file = Path('data/learning')
+
+    known_words = read_words_file(known_words_file)
+    learning_words = read_words_file(learning_words_file)
 
     freqs = load_lemma_frequencies(freqs_file)
     # restricting the processors to only "lemma" impairs prediction quality,
@@ -45,4 +55,20 @@ if __name__ == '__main__':
             lemma_text.append(word.lemma)
 
         print(f'{artist} - {title}')
-        print(lemmas)
+        relevant_lemmas = [lemma for lemma, count in lemmas.items() if count]
+
+        known_from_text = \
+            [lemma for lemma in relevant_lemmas if lemma in known_words]
+        learning_from_text = \
+            [lemma for lemma in relevant_lemmas if lemma in learning_words]
+        unknown_from_text = [
+            lemma for lemma in relevant_lemmas
+            if lemma not in known_words and lemma not in learning_words
+        ]
+
+        print(f'Different words: {len(relevant_lemmas)}')
+        print(f'Learning words: {len(learning_from_text)}')
+        print(f'Known words: {len(known_from_text)}')
+        print(f'Unknown words: {len(unknown_from_text)}')
+        print(unknown_from_text)
+        #print(lemmas)

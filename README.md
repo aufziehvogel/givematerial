@@ -106,6 +106,30 @@ This will be improved to a more useful recommendation engine later:
 python croatian/list_texts.py
 ```
 
+### Ideas
+
+Good presentation of results is a quite hard task (at least for me).
+Here are some ideas:
+
+- calculate metrics for each song and for each artist and display them in a
+  nice visual manner:
+  - number of different words (for artists as a range with mean, min, max)
+  - relative importance of words (average, min, max might help, but we probably
+    have to improve it from there)
+  - ideally the visualisation works in command line, because I currently
+    don't want to invest time into designing an HTML page
+  - number of unknown words (requires a list of known words)
+    - for beginning just manage the vocab list as two simple text files where
+      I manually add words; "learning" where I add words when I listen to a
+      song and "known" where I add words when I feel like I know them
+  - for artists something like a "percentage of all words from this artist
+    that you already know"
+- not really related to this project directly (except if somebody wants to
+  learn specific vocab), but interesting: create tag clouds of common words
+  for artists; e.g. I would guess that for Thompson words like *domovina*
+  are very common, and I've already seen *haljina* in two Prljavo Kazaliste
+  lyrics now
+
 
 ### Open Issues
 
