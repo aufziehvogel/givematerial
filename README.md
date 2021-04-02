@@ -124,6 +124,12 @@ Here are some ideas:
       song and "known" where I add words when I feel like I know them
   - for artists something like a "percentage of all words from this artist
     that you already know"
+- different categories to list texts are probably useful, e.g.
+  - text with few unknown words (easy readings)
+  - texts with unknown words with high frequency according to frequency
+    stats (important to learn)
+  - texts with unknown words that are occuring in many texts in the
+    user's database (quick wins)
 - not really related to this project directly (except if somebody wants to
   learn specific vocab), but interesting: create tag clouds of common words
   for artists; e.g. I would guess that for Thompson words like *domovina*
