@@ -1,4 +1,5 @@
 import classla
+import collections
 import json
 from pathlib import Path
 import re
@@ -39,6 +40,8 @@ if __name__ == '__main__':
     # thus we just load all default processors
     nlp = classla.Pipeline('hr', type='nonstandard')
 
+    artist_summary = collections.defaultdict(list)
+    artist_words = collections.defaultdict(collections.Counter)
     for artist, title, text in iterate_lyrics(lyrics_folder):
         text = text.replace('\r\n', '\n')
         text = re.sub(r'\n\s*\n+', '\n', text)
@@ -55,7 +58,11 @@ if __name__ == '__main__':
             lemma_text.append(word.lemma)
 
         print(f'{artist} - {title}')
-        relevant_lemmas = [lemma for lemma, count in lemmas.items() if count]
+        relevant_lemmas = [
+            lemma for lemma, count in lemmas.items()
+            # ignore special characters like dot or comma
+            if count and not re.match('^[^a-z]+$', lemma)
+        ]
 
         known_from_text = \
             [lemma for lemma in relevant_lemmas if lemma in known_words]
@@ -66,9 +73,38 @@ if __name__ == '__main__':
             if lemma not in known_words and lemma not in learning_words
         ]
 
+        all_word_freqs = []
+        unknown_word_freqs = []
+        for word in relevant_lemmas:
+            all_word_freqs.append(lemmas[word])
+        for word in unknown_from_text:
+            unknown_word_freqs.append(lemmas[word])
+
         print(f'Different words: {len(relevant_lemmas)}')
         print(f'Learning words: {len(learning_from_text)}')
         print(f'Known words: {len(known_from_text)}')
         print(f'Unknown words: {len(unknown_from_text)}')
+        print(f'All word frequencies: [{min(all_word_freqs)}, {sum(all_word_freqs) / float(len(all_word_freqs))}, {max(all_word_freqs)}]')
+        print(f'Unknown word frequencies: [{min(unknown_word_freqs)}, {sum(unknown_word_freqs) / float(len(unknown_word_freqs))}, {max(unknown_word_freqs)}]')
         print(unknown_from_text)
         #print(lemmas)
+
+        artist_summary[artist].append(len(relevant_lemmas))
+        artist_words[artist].update(relevant_lemmas)
+
+    for artist, lengths in artist_summary.items():
+        print(artist)
+        print(f'Min length: {min(lengths)}')
+        print(f'Max length: {max(lengths)}')
+        print(f'Avg length: {sum(lengths) / float(len(lengths))}')
+
+    for artist, words in artist_words.items():
+        known_from_artist = set(words).intersection(known_words)
+        unknown_from_artist = collections.Counter(words)
+        for word in known_words:
+            del unknown_from_artist[word]
+
+        print(artist)
+        print(f'Total vocab: {len(words)}')
+        print(f'Known vocab: {len(known_from_artist)}')
+        print(f'Unknown words: {unknown_from_artist.most_common()[0:10]}')
