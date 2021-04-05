@@ -42,6 +42,8 @@ if __name__ == '__main__':
 
     artist_summary = collections.defaultdict(list)
     artist_words = collections.defaultdict(collections.Counter)
+
+    print('{artist};{title};{len(relevant_lemmas)};{len(learning_from_text)};{len(known_from_text)};{len(unknown_from_text)};{min(all_word_freqs)};{sum(all_word_freqs) / float(len(all_word_freqs))};{max(all_word_freqs)};{min(unknown_word_freqs)};{sum(unknown_word_freqs) / float(len(unknown_word_freqs))};{max(unknown_word_freqs)}')
     for artist, title, text in iterate_lyrics(lyrics_folder):
         text = text.replace('\r\n', '\n')
         text = re.sub(r'\n\s*\n+', '\n', text)
@@ -57,7 +59,7 @@ if __name__ == '__main__':
                 lemmas[word.lemma] = None
             lemma_text.append(word.lemma)
 
-        print(f'{artist} - {title}')
+        #print(f'{artist} - {title}')
         relevant_lemmas = [
             lemma for lemma, count in lemmas.items()
             # ignore special characters like dot or comma
@@ -80,14 +82,15 @@ if __name__ == '__main__':
         for word in unknown_from_text:
             unknown_word_freqs.append(lemmas[word])
 
-        print(f'Different words: {len(relevant_lemmas)}')
-        print(f'Learning words: {len(learning_from_text)}')
-        print(f'Known words: {len(known_from_text)}')
-        print(f'Unknown words: {len(unknown_from_text)}')
-        print(f'All word frequencies: [{min(all_word_freqs)}, {sum(all_word_freqs) / float(len(all_word_freqs))}, {max(all_word_freqs)}]')
-        print(f'Unknown word frequencies: [{min(unknown_word_freqs)}, {sum(unknown_word_freqs) / float(len(unknown_word_freqs))}, {max(unknown_word_freqs)}]')
-        print(unknown_from_text)
-        #print(lemmas)
+        #print(f'Different words: {len(relevant_lemmas)}')
+        #print(f'Learning words: {len(learning_from_text)}')
+        #print(f'Known words: {len(known_from_text)}')
+        #print(f'Unknown words: {len(unknown_from_text)}')
+        #print(f'All word frequencies: [{min(all_word_freqs)}, {sum(all_word_freqs) / float(len(all_word_freqs))}, {max(all_word_freqs)}]')
+        #print(f'Unknown word frequencies: [{min(unknown_word_freqs)}, {sum(unknown_word_freqs) / float(len(unknown_word_freqs))}, {max(unknown_word_freqs)}]')
+        #print(unknown_from_text)
+
+        print(f'{artist};{title};{len(relevant_lemmas)};{len(learning_from_text)};{len(known_from_text)};{len(unknown_from_text)};{min(all_word_freqs)};{sum(all_word_freqs) / float(len(all_word_freqs))};{max(all_word_freqs)};{min(unknown_word_freqs)};{sum(unknown_word_freqs) / float(len(unknown_word_freqs))};{max(unknown_word_freqs)}')
 
         artist_summary[artist].append(len(relevant_lemmas))
         artist_words[artist].update(relevant_lemmas)
@@ -107,4 +110,4 @@ if __name__ == '__main__':
         print(artist)
         print(f'Total vocab: {len(words)}')
         print(f'Known vocab: {len(known_from_artist)}')
-        print(f'Unknown words: {unknown_from_artist.most_common()[0:10]}')
+        print(f'Unknown words: {unknown_from_artist.most_common()[0:50]}')
