@@ -31,6 +31,7 @@ if __name__ == '__main__':
     lyrics_folder = Path('data/lyrics/')
     known_words_file = Path('data/known')
     learning_words_file = Path('data/learning')
+    cache_folder = Path('data/cache')
 
     known_words = read_words_file(known_words_file)
     learning_words = read_words_file(learning_words_file)
@@ -45,19 +46,25 @@ if __name__ == '__main__':
 
     print('{artist};{title};{len(relevant_lemmas)};{len(learning_from_text)};{len(known_from_text)};{len(unknown_from_text)};{min(all_word_freqs)};{sum(all_word_freqs) / float(len(all_word_freqs))};{max(all_word_freqs)};{min(unknown_word_freqs)};{sum(unknown_word_freqs) / float(len(unknown_word_freqs))};{max(unknown_word_freqs)}')
     for artist, title, text in iterate_lyrics(lyrics_folder):
-        text = text.replace('\r\n', '\n')
-        text = re.sub(r'\n\s*\n+', '\n', text)
-        text = text.strip('\n')
+        cache_file = cache_folder / f'{artist}-{title}.json'
+        if cache_file.is_file():
+            with open(cache_file, 'rt') as f:
+                lemmas = json.load(f)
+        else:
+            text = text.replace('\r\n', '\n')
+            text = re.sub(r'\n\s*\n+', '\n', text)
+            text = text.strip('\n')
 
-        doc = nlp(text)
-        lemmas = {}
-        lemma_text = []
-        for word in doc.iter_words():
-            if word.lemma in freqs:
-                lemmas[word.lemma] = freqs[word.lemma]
-            else:
-                lemmas[word.lemma] = None
-            lemma_text.append(word.lemma)
+            doc = nlp(text)
+            lemmas = {}
+            for word in doc.iter_words():
+                if word.lemma in freqs:
+                    lemmas[word.lemma] = freqs[word.lemma]
+                else:
+                    lemmas[word.lemma] = None
+
+            with open(cache_file, 'wt') as f:
+                json.dump(lemmas, f)
 
         #print(f'{artist} - {title}')
         relevant_lemmas = [
