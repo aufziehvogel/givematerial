@@ -111,7 +111,7 @@ if __name__ == '__main__':
             artist=artist,
             title=title,
             text=text,
-            unknown=len(unknown_from_text),
+            unknown=unknown_from_text,
             learning=len(learning_from_text),
             total=len(relevant_lemmas))
         heapq.heappush(recommendations, (order, text_stats))
@@ -130,7 +130,9 @@ if __name__ == '__main__':
         artist_words[artist].update(relevant_lemmas)
 
     for _, ts in heapq.nsmallest(5, recommendations):
-        print(f'== {ts.artist} - {ts.title} (learning {ts.learning}, total {ts.total}, unknown {ts.unknown}) ==')
+        print(f'== {ts.artist} - {ts.title} (learning {ts.learning}, total {ts.total}, unknown {len(ts.unknown)}) ==')
+        print()
+        print(', '.join(ts.unknown))
         print()
         print(ts.text)
         print()
