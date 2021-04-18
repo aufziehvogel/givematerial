@@ -122,6 +122,22 @@ Japanese data sources:
   Kanji version if available)
 
 
+## English
+
+In my opinion English also makes sense. While my level of English (and probably
+that of everybody finding an open source project on Github) is already
+okay'ish, I struggle with less frequent vocabulary used in novels and better
+publications.
+
+- challenge: for English I will need a good way to mark a lot of words as known
+  quickly to initialize the system
+  - might work to let the user specify all unknown words for a text and all
+    others will be copied to their `known` list, e.g. with
+    `givematerial unknown text-id-1 grommet pot-valor`
+- possible data sources might be publications from big news papers or maybe
+  also public fiction sites
+
+
 ## Get Recommendations
 
 ```bash
