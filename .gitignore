@@ -1,3 +1,7 @@
+.idea
+*.egg-info/
+__pycache__
+
 data
 tools/cstlemma/*
 venv
