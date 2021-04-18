@@ -102,8 +102,25 @@ python -c "import classla; classla.download('hr', type='nonstandard')"
 classla allows you to list the lemmas including frequencies for all songs.
 This will be improved to a more useful recommendation engine later:
 
+
+## Japanese
+
+Japanese lemmatization (or is it only tokenization?) [does exist](http://taku910.github.io/mecab/)
+([project with install instructions in a dockerfile](https://github.com/CatalystCode/jp_tokenizer))
+but since I study a lot with Wanikani using Kanji for recommendations would
+be more useful (also quicker to implement).
+
+- import Kanji status from Wanikani API
+- use each individual kanji as lemma
+- from there it's similar to the Croatian recommendation, just search for
+  texts with a few unknown kanji
+
+
+## Get Recommendations
+
 ```bash
-python croatian/list_texts.py
+pip install -e .
+givematerial -l hr
 ```
 
 ### Ideas
