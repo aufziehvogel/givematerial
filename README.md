@@ -115,6 +115,12 @@ be more useful (also quicker to implement).
 - from there it's similar to the Croatian recommendation, just search for
   texts with a few unknown kanji
 
+Japanese data sources:
+
+- [NHK Easy](https://www3.nhk.or.jp/news/easy/)
+- [Animelyrics](http://www.animelyrics.com/) (.jis suffix of URL is for
+  Kanji version if available)
+
 
 ## Get Recommendations
 
