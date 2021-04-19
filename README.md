@@ -9,6 +9,39 @@ and then propose something useful to you.
 It's more a collection of ideas at the moment. Hope I will be able to do it
 step-by-step.
 
+
+## Usage
+
+This is the usage guide after you have gone through the initial ingest of
+some texts. I'm planning to make the initial ingest much simpler, too. The
+"good" docs will be at the top of this document, the more convoluted stuff
+(rough outlines, general ideas) more to the bottom.
+
+To get some recommendations for Croatian execute:
+
+```bash
+givematerial -l hr
+```
+
+This will give you a list of texts with the new vocabulary at the top. If
+you have looked up all vocabulary (and added it to your vocabulary learning
+program like Anki), you can mark them as `learning` with the following
+command:
+
+```bash
+gm-read -l hr word1 word2 word3 word4
+```
+
+This command will add `word1`, `word2`, `word3`, and `word4` to the list of
+words that you are currently learning.
+
+You can now choose to get new recommendations based on your updated learning
+lists with `givematerial -l hr` again.
+
+From time to time you should move the words from `learning` to `known`, I will
+add some better way to do this than manually in the future.
+
+
 ## Requirements
 
 1. create vocabulary lists of most important vocab for a language, e.g. for Anki

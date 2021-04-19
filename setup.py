@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'givematerial=givematerial.cli:main',
+            'gm-read=givematerial.cli:manage_read',
         ],
     },
     install_requires=install_requires,
