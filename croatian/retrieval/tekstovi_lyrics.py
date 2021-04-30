@@ -80,6 +80,7 @@ if __name__ == '__main__':
                 'collection': 'lyrics',
                 'title': f'{lyrics.artist} - {lyrics.title}',
                 'text': lyrics.text,
+                'language': 'hr',
             }
             json.dump(data, f)
 
