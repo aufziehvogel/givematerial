@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     artist_pages = args.url
-    outdir = Path(args.output) if args.output else Path('lyrics')
+    outdir = Path(args.output) if args.output else Path('data/texts')
 
     lyrics_urls = []
     for artist_page in artist_pages:
