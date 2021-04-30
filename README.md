@@ -42,6 +42,53 @@ From time to time you should move the words from `learning` to `known`, I will
 add some better way to do this than manually in the future.
 
 
+## Data Store for Texts
+
+*This is a draft, it is not implemented, yet*
+
+GiveMaterial wants to be agnostic to the type of text that it recommends.
+Currently, I use it for song lyrics, but I plan to extend it to Japanese
+simple news. Other ideas might be Croatian news, English short stories and
+so on. Over time probably a vast set of metadata will evolve, but for now
+texts must contain the following information:
+
+- `collection`: a name for the collection from which this text comes and in
+  which it should be displayed
+- `title`: a title for the text
+- `text`: the full text without any markup
+- `language`: the language of this text
+
+Additional fields are allowed, but not used for now. A possible method to use
+this with lyrics could be to use the following scheme:
+
+```json
+{
+    "collection": "lyrics",
+    "title": "Artist - Title of Song",
+    "text": "Full Lyrics of Song",
+    "language": "en",
+    "artist": "Artist",
+    "songtitle": "Title of Song"
+}
+```
+
+If you already know that you will only ever add lyrics, you could also set
+the artist's name as `collection`.
+
+The JSON documents for texts are stored in the folder `data/texts` or one or
+multiple levels of subfolders within this folder. This means you are free to
+structure your texts according to data sources.
+
+There are some helper scripts to retrieve texts. For example, it's possible
+to retrieve song lyrics for specific artists from tekstovi.net with the
+following command:
+
+```bash
+python croatian/retrieval/tekstovi_lyrics.py \
+    --url https://tekstovi.net/2,206,0.html --output data/texts/tekstovi
+```
+
+
 ## Requirements
 
 1. create vocabulary lists of most important vocab for a language, e.g. for Anki

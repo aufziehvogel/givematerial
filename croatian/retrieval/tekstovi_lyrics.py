@@ -1,5 +1,6 @@
 import argparse
 from dataclasses import dataclass
+import json
 from pathlib import Path
 import re
 import requests
@@ -74,7 +75,12 @@ if __name__ == '__main__':
         artist_dir.mkdir(exist_ok=True, parents=True)
 
         print(f'Writing lyrics for {lyrics.artist} - {lyrics.title}')
-        with open(artist_dir / title_filename, 'wt') as f:
-            f.write(lyrics.text)
+        with open(artist_dir / f'{title_filename}.json', 'wt') as f:
+            data = {
+                'collection': 'lyrics',
+                'title': f'{lyrics.artist} - {lyrics.title}',
+                'text': lyrics.text,
+            }
+            json.dump(data, f)
 
         time.sleep(1)
