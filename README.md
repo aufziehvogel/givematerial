@@ -68,13 +68,11 @@ This will fetch a list of kanji that you are currently learning (SRS levels
 
 ## Data Store for Texts
 
-*This is a draft, it is not implemented, yet*
-
 GiveMaterial wants to be agnostic to the type of text that it recommends.
 Currently, I use it for song lyrics, but I plan to extend it to Japanese
-simple news. Other ideas might be Croatian news, English short stories and
-so on. Over time probably a vast set of metadata will evolve, but for now
-texts must contain the following information:
+simple news. Other ideas might be Croatian news, English short stories,
+movie sub titles and so on. Over time probably a vast set of metadata will
+evolve, but for now texts must contain the following information:
 
 - `collection`: a name for the collection from which this text comes and in
   which it should be displayed
