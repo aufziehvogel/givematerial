@@ -6,8 +6,8 @@ find material (e.g. music, texts) in foreign languages.
 The idea is to use your knowledge, compare it to a list of available material
 and then propose something useful to you.
 
-It's more a collection of ideas at the moment. Hope I will be able to do it
-step-by-step.
+GiveMaterial uses a collection of texts to fetch recommendations from. It
+loads current vocabulary knowledge from different providers.
 
 
 ## Usage
@@ -16,6 +16,14 @@ This is the usage guide after you have gone through the initial ingest of
 some texts. I'm planning to make the initial ingest much simpler, too. The
 "good" docs will be at the top of this document, the more convoluted stuff
 (rough outlines, general ideas) more to the bottom.
+
+GiveMaterial currently supports *Croatian* and *Japanese*. Croatian uses
+vocabulary for text recommendation, Japanese uses Kanji. For Croatian, you
+have to manage vocabulary status on your own with text files. Japanese kanji
+knowledge is pulled from Wanikani.
+
+
+### Croatian
 
 To get some recommendations for Croatian execute:
 
@@ -40,6 +48,22 @@ lists with `givematerial -l hr` again.
 
 From time to time you should move the words from `learning` to `known`, I will
 add some better way to do this than manually in the future.
+
+
+### Japanese
+
+Japanese recommendation uses Wanikani to retrieve your kanji knowledge. Thus,
+you have to specify a read-only Wanikani token in the environment variable
+`WANIKANI_TOKEN`.
+
+To get some recommendations for Japanese execute:
+
+```bash
+WANIKANI_TOKEN=specify-your-token givematerial -l jp
+```
+
+This will fetch a list of kanji that you are currently learning (SRS levels
+1 to 4), and a list of known kanji (SRS levels 5 to 9) from Wanikani.
 
 
 ## Data Store for Texts
