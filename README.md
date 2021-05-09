@@ -254,6 +254,8 @@ Here are some ideas:
   for artists; e.g. I would guess that for Thompson words like *domovina*
   are very common, and I've already seen *haljina* in two Prljavo Kazaliste
   lyrics now
+- use [Anki Connect](https://foosoft.net/projects/anki-connect/)
+  to read vocab knowledge from local Anki
 
 
 ### Open Issues
