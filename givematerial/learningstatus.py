@@ -1,6 +1,8 @@
+import json
 import logging
 from pathlib import Path
 import requests
+import tempfile
 import time
 from typing import Any, Dict, Iterable, List
 
@@ -26,6 +28,9 @@ class FileBasedStatus:
 class WanikaniStatus:
     """Reads kanji learning status from Wanikani"""
     def __init__(self, token: str):
+        self.cache_file = \
+            Path(tempfile.gettempdir()) / 'givematerial_wanikani.json'
+
         self.token = token
         self.headers = {
             'Wanikani-Revision': '20170710',
@@ -50,12 +55,9 @@ class WanikaniStatus:
         return self.learning_learnables
 
     def _fetch_subjects(self) -> Dict[int, str]:
-        # TODO: cache this on local disk
-        logging.warning(
-            'Cache not implemented, yet. Pulling all subjects from Wanikani '
-            'each time. Do not call too often.')
-
-        subjects = {}
+        subjects = self._load_local()
+        if subjects:
+            return subjects
 
         start_url = 'https://api.wanikani.com/v2/subjects'
         for data in self._iterate_wanikani(start_url):
@@ -66,6 +68,7 @@ class WanikaniStatus:
 
                     subjects[subject_id] = kanji
 
+        self._store_local(subjects)
         return subjects
 
     def _fetch_learning_kanji(self):
@@ -100,3 +103,17 @@ class WanikaniStatus:
 
             time.sleep(1)
             next_url = data['pages']['next_url']
+
+    def _store_local(self, subjects: Dict[int, str]):
+        with open(self.cache_file, 'wt') as f:
+            json.dump(subjects, f)
+
+    def _load_local(self) -> Dict[int, str]:
+        try:
+            with open(self.cache_file, 'rt') as f:
+                data = json.load(f)
+                # for some reason integer keys are converted to JSON strings
+                # when I save the cache with json.dump
+                return dict([(int(key), value) for key, value in data.items()])
+        except FileNotFoundError:
+            return {}
