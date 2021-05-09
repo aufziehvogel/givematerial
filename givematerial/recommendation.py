@@ -1,16 +1,23 @@
-import classla
 import json
 from pathlib import Path
-import re
 import heapq
 import dataclasses
 import uuid
-from typing import Dict, List, Optional
+from typing import List, Iterable
+
+import givematerial.extractors
+
+
+@dataclasses.dataclass
+class Text:
+    collection: str
+    title: str
+    text: str
+    language: str
 
 
 @dataclasses.dataclass
 class TextStats:
-    artist: str
     title: str
     text: str
     unknown: List[str]
@@ -18,44 +25,42 @@ class TextStats:
     total: int
 
 
-def load_lemma_frequencies(freqs_file: Path):
-    with open(freqs_file) as f:
-        return json.load(f)
+def iterate_texts(folder: Path, language: str) -> Iterable[Text]:
+    for text_file in folder.rglob('*.json'):
+        with open(text_file) as f:
+            text = json.load(f)
+
+        if text['language'] != language:
+            continue
+
+        yield Text(
+            collection=text['collection'],
+            title=text['title'],
+            text=text['text'],
+            language=text['language'])
 
 
-def iterate_lyrics(folder: Path):
-    for lyrics_file in folder.glob('*/*'):
-        with open(lyrics_file) as f:
-            text = f.read()
+class LearnableCache:
+    def __init__(self, cache_folder: Path):
+        self.cache_folder = cache_folder
 
-        title = lyrics_file.name
-        artist = lyrics_file.parent.name
+    def check_cache(self, title: str) -> List[str]:
+        cache_file = self._cache_file(title)
 
-        yield artist, title, text
+        if cache_file.is_file():
+            with open(cache_file, 'rt') as f:
+                return json.load(f)
 
+        return []
 
-def text_lemmas(artist: str, title: str, text: str, cache_folder, nlp, freqs) -> Dict[str, Optional[float]]:
-    cache_file = cache_folder / f'{artist}-{title}.json'
-    if cache_file.is_file():
-        with open(cache_file, 'rt') as f:
-            lemmas = json.load(f)
-    else:
-        text = text.replace('\r\n', '\n')
-        text = re.sub(r'\n\s*\n+', '\n', text)
-        text = text.strip('\n')
-
-        doc = nlp(text)
-        lemmas = {}
-        for word in doc.iter_words():
-            if word.lemma in freqs:
-                lemmas[word.lemma] = freqs[word.lemma]
-            else:
-                lemmas[word.lemma] = None
+    def write_cache(self, title: str, lemmas: List[str]):
+        cache_file = self._cache_file(title)
 
         with open(cache_file, 'wt') as f:
             json.dump(lemmas, f)
 
-    return lemmas
+    def _cache_file(self, title: str) -> Path:
+        return self.cache_folder / f'{title}.json'
 
 
 def read_words_file(path: Path):
@@ -65,7 +70,7 @@ def read_words_file(path: Path):
 
 def calc_recommendations(language):
     freqs_file = Path('data') / language / 'word_frequencies.json'
-    lyrics_folder = Path('data') / language / 'lyrics'
+    texts_folder = Path('data') / 'texts'
     known_words_file = Path('data') / language / 'known'
     learning_words_file = Path('data') / language / 'learning'
     cache_folder = Path('data') / language / 'cache'
@@ -73,21 +78,24 @@ def calc_recommendations(language):
     known_words = read_words_file(known_words_file)
     learning_words = read_words_file(learning_words_file)
 
-    freqs = load_lemma_frequencies(freqs_file)
-    # restricting the processors to only "lemma" impairs prediction quality,
-    # thus we just load all default processors
-    nlp = classla.Pipeline('hr', type='nonstandard')
+    if language == 'hr':
+        learnable_extractor = givematerial.extractors.CroatianLemmatizer(
+            freqs_file)
+    elif language == 'jp':
+        learnable_extractor = givematerial.extractors.JapaneseKanjiExtractor()
+    else:
+        raise NotImplementedError(
+            f'Extractor for language "{language}" does not exist')
 
     recommendations = []
 
-    for artist, title, text in iterate_lyrics(lyrics_folder):
-        lemmas = text_lemmas(artist, title, text, cache_folder, nlp, freqs)
+    cache = LearnableCache(cache_folder)
 
-        relevant_lemmas = [
-            lemma for lemma, count in lemmas.items()
-            # ignore special characters like dot or comma
-            if count and not re.match('^[^a-z]+$', lemma)
-        ]
+    for text in iterate_texts(texts_folder, language):
+        relevant_lemmas = cache.check_cache(text.title)
+        if len(relevant_lemmas) == 0:
+            relevant_lemmas = learnable_extractor.extract_learnables(text.text)
+            cache.write_cache(text.title, relevant_lemmas)
 
         known_from_text = \
             [lemma for lemma in relevant_lemmas if lemma in known_words]
@@ -98,19 +106,11 @@ def calc_recommendations(language):
             if lemma not in known_words and lemma not in learning_words
         ]
 
-        all_word_freqs = []
-        unknown_word_freqs = []
-        for word in relevant_lemmas:
-            all_word_freqs.append(lemmas[word])
-        for word in unknown_from_text:
-            unknown_word_freqs.append(lemmas[word])
-
         # add a uuid so that heapq never tries to compare TextStats to TextStats
         order = (abs(len(unknown_from_text) - 5), -len(learning_from_text), -len(relevant_lemmas), uuid.uuid4())
         text_stats = TextStats(
-            artist=artist,
-            title=title,
-            text=text,
+            title=text.title,
+            text=text.text,
             unknown=unknown_from_text,
             learning=len(learning_from_text),
             total=len(relevant_lemmas))

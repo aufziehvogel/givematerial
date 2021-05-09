@@ -10,7 +10,7 @@ def main():
 
     for _, ts in recommendation.calc_recommendations(args.language):
         print(
-            f'== {ts.artist} - {ts.title} (learning {ts.learning}, total {ts.total}, unknown {len(ts.unknown)}) ==')
+            f'== {ts.title} (learning {ts.learning}, total {ts.total}, unknown {len(ts.unknown)}) ==')
         print()
         print(' '.join(ts.unknown))
         print()
