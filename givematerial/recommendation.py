@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import heapq
 import dataclasses
@@ -6,6 +7,7 @@ import uuid
 from typing import List, Iterable
 
 import givematerial.extractors
+import givematerial.learningstatus
 
 
 @dataclasses.dataclass
@@ -63,29 +65,29 @@ class LearnableCache:
         return self.cache_folder / f'{title}.json'
 
 
-def read_words_file(path: Path):
-    with open(path) as f:
-        return [word.strip() for word in f]
-
-
 def calc_recommendations(language):
     freqs_file = Path('data') / language / 'word_frequencies.json'
     texts_folder = Path('data') / 'texts'
     known_words_file = Path('data') / language / 'known'
     learning_words_file = Path('data') / language / 'learning'
     cache_folder = Path('data') / language / 'cache'
-
-    known_words = read_words_file(known_words_file)
-    learning_words = read_words_file(learning_words_file)
+    wanikani_token = os.getenv('WANIKANI_TOKEN')
 
     if language == 'hr':
         learnable_extractor = givematerial.extractors.CroatianLemmatizer(
             freqs_file)
+        learning_status = givematerial.learningstatus.FileBasedStatus(
+            known_words_file, learning_words_file)
     elif language == 'jp':
         learnable_extractor = givematerial.extractors.JapaneseKanjiExtractor()
+        learning_status = givematerial.learningstatus.WanikaniStatus(
+            wanikani_token)
     else:
         raise NotImplementedError(
             f'Extractor for language "{language}" does not exist')
+
+    known_words = learning_status.get_known_learnables()
+    learning_words = learning_status.get_learning_learnables()
 
     recommendations = []
 

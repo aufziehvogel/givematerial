@@ -1,9 +1,13 @@
 import argparse
+import logging
+import os
 
 from givematerial import recommendation
 
 
 def main():
+    logging.basicConfig(level=os.getenv('LOGLEVEL'))
+
     parser = argparse.ArgumentParser(description='Get text recommendations')
     parser.add_argument('--language', '-l', dest='language', required=True)
     args = parser.parse_args()
