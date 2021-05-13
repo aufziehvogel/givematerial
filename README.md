@@ -10,60 +10,65 @@ GiveMaterial uses a collection of texts to fetch recommendations from. It
 loads current vocabulary knowledge from different providers.
 
 
+## Installation
+
+GiveMaterial currently does not exist as a pip package, so we recommend
+installation in a virtual environment.
+
+```bash
+virtualenv venv
+source venv/bin/activate
+pip install git+https://github.com/aufziehvogel/givematerial#egg=givematerial
+```
+
+
+## Configuration
+
+Before you can use GiveMaterial you have to configure a language status
+provider to fetch vocabulary knowledge from. Currently, the following
+providers are supported:
+
+- Flat Files (`files`): Reads lists of words from your local computer
+- Anki (`anki`): Reads your current learning status from AnkiConnect
+- Wanikani (`wanikani`): Reads your kanji learning status from Wanikani
+
+You can use environment variables to configure the plugins. Set
+`LEARNABLE_PROVIDER` to define which provider you want to use.
+
+For Anki you need to set the environment variable `ANKI_DECK` to select the
+deck from which Anki should read your vocab status.
+
+For Wanikani you have to specify a read-only Wanikani token in
+`WANIKANI_TOKEN`.
+
+The *flat files* provider is always loaded, so that you can manage a list of
+words that you already know and do not want to add to Anki, e.g. because
+you have been learning the language for some time already. Known words
+must be stored in the file `data/$LANGUAGE/known` (you must replace
+`$LANGUAGE` with the 2-letter abbreviation of your language, e.g. `hr`).
+
+
 ## Usage
 
-This is the usage guide after you have gone through the initial ingest of
-some texts. I'm planning to make the initial ingest much simpler, too. The
-"good" docs will be at the top of this document, the more convoluted stuff
-(rough outlines, general ideas) more to the bottom.
-
 GiveMaterial currently supports *Croatian* and *Japanese*. Croatian uses
-vocabulary for text recommendation, Japanese uses Kanji. For Croatian, you
-have to manage vocabulary status on your own with text files. Japanese kanji
-knowledge is pulled from Wanikani.
+vocabulary for text recommendation, Japanese uses Kanji.
 
 
 ### Croatian
 
-To get some recommendations for Croatian execute:
+To get some recommendations for Croatian and read your vocabulary knowledge
+from an Anki deck called *Croatian* execute:
 
 ```bash
-givematerial -l hr
+LEARNABLE_PROVIDER=anki ANKI_DECK=Croatian givematerial -l hr
 ```
 
-This will give you a list of texts with the new vocabulary at the top. If
-you have looked up all vocabulary (and added it to your vocabulary learning
-program like Anki), you can mark them as `learning` with the following
-command:
+On the other hand to get recommendations for Japanese texts based on kanji
+execute:
 
 ```bash
-gm-read -l hr word1 word2 word3 word4
+LEARNABLE_PROVIDER=wanikani WANIKANI_TOKEN=your-token givematerial -l jp
 ```
-
-This command will add `word1`, `word2`, `word3`, and `word4` to the list of
-words that you are currently learning.
-
-You can now choose to get new recommendations based on your updated learning
-lists with `givematerial -l hr` again.
-
-From time to time you should move the words from `learning` to `known`, I will
-add some better way to do this than manually in the future.
-
-
-### Japanese
-
-Japanese recommendation uses Wanikani to retrieve your kanji knowledge. Thus,
-you have to specify a read-only Wanikani token in the environment variable
-`WANIKANI_TOKEN`.
-
-To get some recommendations for Japanese execute:
-
-```bash
-WANIKANI_TOKEN=specify-your-token givematerial -l jp
-```
-
-This will fetch a list of kanji that you are currently learning (SRS levels
-1 to 4), and a list of known kanji (SRS levels 5 to 9) from Wanikani.
 
 
 ## Data Store for Texts
@@ -276,8 +281,6 @@ Here are some ideas:
   for artists; e.g. I would guess that for Thompson words like *domovina*
   are very common, and I've already seen *haljina* in two Prljavo Kazaliste
   lyrics now
-- use [Anki Connect](https://foosoft.net/projects/anki-connect/)
-  to read vocab knowledge from local Anki
 
 
 ### Open Issues

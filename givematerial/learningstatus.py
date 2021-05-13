@@ -4,12 +4,13 @@ from pathlib import Path
 import requests
 import tempfile
 import time
-from typing import Any, Dict, Iterable, List
+from typing import Any, Dict, Iterable, List, Optional
 
 
 class FileBasedStatus:
     """Uses local text files to read known and learning words"""
-    def __init__(self, known_words_file: Path, learning_words_file: Path):
+    def __init__(
+            self, known_words_file: Path, learning_words_file: Optional[Path]):
         self.known_words_file = known_words_file
         self.learning_words_file = learning_words_file
 
@@ -20,9 +21,12 @@ class FileBasedStatus:
         return self._read_words_file(self.learning_words_file)
 
     @staticmethod
-    def _read_words_file(path: Path) -> List[str]:
-        with open(path) as f:
-            return [word.strip() for word in f]
+    def _read_words_file(path: Optional[Path]) -> List[str]:
+        try:
+            with open(path) as f:
+                return [word.strip() for word in f]
+        except OSError:
+            return []
 
 
 class WanikaniStatus:
@@ -117,3 +121,49 @@ class WanikaniStatus:
                 return dict([(int(key), value) for key, value in data.items()])
         except FileNotFoundError:
             return {}
+
+
+class AnkiStatus:
+    """Reads learning status from Anki"""
+    def __init__(self, deck_name: str):
+        self.server = 'http://localhost:8765'
+        self.deck_name = deck_name
+
+        self.card_intervals = []
+
+    def get_known_learnables(self) -> List[str]:
+        if not self.card_intervals:
+            self.card_intervals = self._get_intervals()
+
+        return [word for (word, interval) in self.card_intervals.items()
+                if interval >= 7]
+
+    def get_learning_learnables(self) -> List[str]:
+        if not self.card_intervals:
+            self.card_intervals = self._get_intervals()
+
+        return [word for (word, interval) in self.card_intervals.items()
+                if 0 < interval < 7]
+
+    def _get_intervals(self) -> Dict[str, int]:
+        cards = self._perform_request(
+            'findCards', {'query': f'deck:{self.deck_name}'})
+        card_infos = self._perform_request('cardsInfo', {'cards': cards})
+
+        intervals = {}
+        for card in card_infos:
+            word = card['fields']['Front']['value']
+            interval = card['interval']
+
+            intervals[word] = interval
+
+        return intervals
+
+    def _perform_request(self, action: str, params: Dict[str, Any]) -> Any:
+        data = {
+            'action': action,
+            'version': 6,
+            'params': params,
+        }
+        result = requests.post(self.server, json=data)
+        return result.json()['result']

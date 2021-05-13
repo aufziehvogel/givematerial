@@ -71,22 +71,37 @@ def calc_recommendations(language):
     known_words_file = Path('data') / language / 'known'
     learning_words_file = Path('data') / language / 'learning'
     cache_folder = Path('data') / language / 'cache'
-    wanikani_token = os.getenv('WANIKANI_TOKEN')
 
-    if language == 'hr':
-        learnable_extractor = givematerial.extractors.CroatianLemmatizer(
-            freqs_file)
+    learnable_provider = os.getenv('LEARNABLE_PROVIDER', 'files')
+    wanikani_token = os.getenv('WANIKANI_TOKEN')
+    deck_name = os.getenv('ANKI_DECK')
+
+    known_learning_status = givematerial.learningstatus.FileBasedStatus(
+        known_words_file, None)
+
+    if learnable_provider == 'files':
         learning_status = givematerial.learningstatus.FileBasedStatus(
             known_words_file, learning_words_file)
-    elif language == 'jp':
-        learnable_extractor = givematerial.extractors.JapaneseKanjiExtractor()
+    elif learnable_provider == 'anki':
+        learning_status = givematerial.learningstatus.AnkiStatus(deck_name)
+    elif learnable_provider == 'wanikani':
         learning_status = givematerial.learningstatus.WanikaniStatus(
             wanikani_token)
     else:
         raise NotImplementedError(
+            f'Unknown learnable provider "{learnable_provider}"')
+
+    if language == 'hr':
+        learnable_extractor = givematerial.extractors.CroatianLemmatizer(
+            freqs_file)
+    elif language == 'jp':
+        learnable_extractor = givematerial.extractors.JapaneseKanjiExtractor()
+    else:
+        raise NotImplementedError(
             f'Extractor for language "{language}" does not exist')
 
-    known_words = learning_status.get_known_learnables()
+    known_words = learning_status.get_known_learnables() \
+        + known_learning_status.get_known_learnables()
     learning_words = learning_status.get_learning_learnables()
 
     recommendations = []
