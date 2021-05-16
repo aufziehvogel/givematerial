@@ -17,6 +17,8 @@ setup(
     name='givematerial',
     packages=[
         'givematerial',
+        'givematerial.db',
+        'givematerial.web',
     ],
     entry_points={
         'console_scripts': [

@@ -1,3 +1,4 @@
+import abc
 import json
 import logging
 from pathlib import Path
@@ -7,7 +8,17 @@ import time
 from typing import Any, Dict, Iterable, List, Optional
 
 
-class FileBasedStatus:
+class LearnableStatus(abc.ABC):
+    @abc.abstractmethod
+    def get_known_learnables(self):
+        pass
+
+    @abc.abstractmethod
+    def get_learning_learnables(self):
+        pass
+
+
+class FileBasedStatus(LearnableStatus):
     """Uses local text files to read known and learning words"""
     def __init__(
             self, known_words_file: Path, learning_words_file: Optional[Path]):
@@ -29,7 +40,7 @@ class FileBasedStatus:
             return []
 
 
-class WanikaniStatus:
+class WanikaniStatus(LearnableStatus):
     """Reads kanji learning status from Wanikani"""
     def __init__(self, token: str):
         self.cache_file = \
@@ -123,7 +134,7 @@ class WanikaniStatus:
             return {}
 
 
-class AnkiStatus:
+class AnkiStatus(LearnableStatus):
     """Reads learning status from Anki"""
     def __init__(self, deck_name: str):
         self.server = 'http://localhost:8765'
