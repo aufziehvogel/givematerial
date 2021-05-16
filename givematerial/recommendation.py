@@ -66,7 +66,7 @@ class LearnableCache:
         return self.cache_folder / f'{title}.json'
 
 
-def calc_recommendations(language):
+def calc_recommendations(language) -> List[TextStats]:
     freqs_file = Path('data') / language / 'word_frequencies.json'
     texts_folder = Path('data') / 'texts'
     known_words_file = Path('data') / language / 'known'
@@ -115,6 +115,16 @@ def calc_recommendations(language):
         + known_learning_status.get_known_learnables()
     learning_words = learning_status.get_learning_learnables()
 
+    return get_recommendations(
+        known_words, learning_words, cache_folder, texts_folder, language,
+        learnable_extractor)
+
+
+# TODO: Cleanup this function, far too many arguments
+def get_recommendations(
+        known_words: List[str], learning_words: List[str], cache_folder: Path,
+        texts_folder: Path, language: str,
+        learnable_extractor) -> List[TextStats]:
     recommendations = []
 
     cache = LearnableCache(cache_folder)
@@ -144,7 +154,7 @@ def calc_recommendations(language):
             total=len(relevant_lemmas))
         heapq.heappush(recommendations, (order, text_stats))
 
-    return heapq.nsmallest(5, recommendations)
+    return [ts for _, ts in heapq.nsmallest(5, recommendations)]
 
 
 # Not used at the moment, will implement later

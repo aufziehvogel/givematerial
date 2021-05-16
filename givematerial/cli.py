@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--language', '-l', dest='language', required=True)
     args = parser.parse_args()
 
-    for _, ts in recommendation.calc_recommendations(args.language):
+    for ts in recommendation.calc_recommendations(args.language):
         print(
             f'== {ts.title} (learning {ts.learning}, total {ts.total}, unknown {len(ts.unknown)}) ==')
         print()

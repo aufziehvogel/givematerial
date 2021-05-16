@@ -1,0 +1,10 @@
+<form action="/" method="post">
+    <label for="wktoken">WK Token:</label><input type="text" id="wktoken" name="wktoken"/>
+    <input type="submit" name="submit" value="Continue"/>
+</form>
+
+{% for recommendation in recommendations %}
+<h2>{{ recommendation.title }}</h2>
+<div class="stats">Unknown: {{ recommendation.unknown }}, learning: {{ recommendation.learning }}</div>
+<div class="fulltext">{{ recommendation.text }}</div>
+{% endfor %}
