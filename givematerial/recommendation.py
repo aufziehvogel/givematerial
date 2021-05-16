@@ -5,7 +5,7 @@ import heapq
 import dataclasses
 import sqlite3
 import uuid
-from typing import List, Iterable
+from typing import List, Iterable, Optional
 
 import givematerial.extractors
 import givematerial.learningstatus
@@ -17,6 +17,7 @@ class Text:
     title: str
     text: str
     language: str
+    url: Optional[str]
 
 
 @dataclasses.dataclass
@@ -24,8 +25,9 @@ class TextStats:
     title: str
     text: str
     unknown: List[str]
-    learning: int
+    learning: List[str]
     total: int
+    url: Optional[str]
 
 
 def iterate_texts(folder: Path, language: str) -> Iterable[Text]:
@@ -40,7 +42,8 @@ def iterate_texts(folder: Path, language: str) -> Iterable[Text]:
             collection=text['collection'],
             title=text['title'],
             text=text['text'],
-            language=text['language'])
+            language=text['language'],
+            url=text['url'] if 'url' in text else None)
 
 
 class LearnableCache:
@@ -124,7 +127,7 @@ def calc_recommendations(language) -> List[TextStats]:
 def get_recommendations(
         known_words: List[str], learning_words: List[str], cache_folder: Path,
         texts_folder: Path, language: str,
-        learnable_extractor) -> List[TextStats]:
+        learnable_extractor, count: int = 5) -> List[TextStats]:
     recommendations = []
 
     cache = LearnableCache(cache_folder)
@@ -150,11 +153,12 @@ def get_recommendations(
             title=text.title,
             text=text.text,
             unknown=unknown_from_text,
-            learning=len(learning_from_text),
-            total=len(relevant_lemmas))
+            learning=learning_from_text,
+            total=len(relevant_lemmas),
+            url=text.url)
         heapq.heappush(recommendations, (order, text_stats))
 
-    return [ts for _, ts in heapq.nsmallest(5, recommendations)]
+    return [ts for _, ts in heapq.nsmallest(count, recommendations)]
 
 
 # Not used at the moment, will implement later

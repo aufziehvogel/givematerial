@@ -1,10 +1,24 @@
-<form action="/" method="post">
-    <label for="wktoken">WK Token:</label><input type="text" id="wktoken" name="wktoken"/>
-    <input type="submit" name="submit" value="Continue"/>
-</form>
+{% extends 'base.html' %}
 
-{% for recommendation in recommendations %}
-<h2>{{ recommendation.title }}</h2>
-<div class="stats">Unknown: {{ recommendation.unknown }}, learning: {{ recommendation.learning }}</div>
-<div class="fulltext">{{ recommendation.text }}</div>
-{% endfor %}
+{% block content %}
+    <form action="/" method="post">
+        <label for="wktoken">WK Token:</label>
+        <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>
+        <input type="submit" name="submit" value="Continue"/>
+    </form>
+
+    {% for recommendation in recommendations %}
+    <div class="recommendation">
+        <h2>{{ recommendation.title }}</h2>
+        <div class="stats">
+            <ul>
+                <li>learning ({{ recommendation.learning|length }}): {{ ' '.join(recommendation.learning) }}</li>
+                <li>unknown ({{ recommendation.unknown|length }}): {{ ' '.join(recommendation.unknown) }}</li>
+            </ul>
+        </div>
+        {% if recommendation.url %}
+            <div class="more"><a href="{{ url_for('redirect_read', url=recommendation.url) }}">Read text</a></div>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% endblock %}
