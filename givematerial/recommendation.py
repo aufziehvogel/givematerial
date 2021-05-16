@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import heapq
 import dataclasses
+import sqlite3
 import uuid
 from typing import List, Iterable
 
@@ -73,8 +74,6 @@ def calc_recommendations(language):
     cache_folder = Path('data') / language / 'cache'
 
     learnable_provider = os.getenv('LEARNABLE_PROVIDER', 'files')
-    wanikani_token = os.getenv('WANIKANI_TOKEN')
-    deck_name = os.getenv('ANKI_DECK')
 
     known_learning_status = givematerial.learningstatus.FileBasedStatus(
         known_words_file, None)
@@ -82,11 +81,23 @@ def calc_recommendations(language):
     if learnable_provider == 'files':
         learning_status = givematerial.learningstatus.FileBasedStatus(
             known_words_file, learning_words_file)
+
     elif learnable_provider == 'anki':
+        deck_name = os.getenv('ANKI_DECK')
         learning_status = givematerial.learningstatus.AnkiStatus(deck_name)
+
     elif learnable_provider == 'wanikani':
+        wanikani_token = os.getenv('WANIKANI_TOKEN')
         learning_status = givematerial.learningstatus.WanikaniStatus(
             wanikani_token)
+
+    elif learnable_provider == 'sqlite':
+        sqlite_conn = sqlite3.connect('givematerial.sqlite')
+        user_identifier = os.getenv('USER_IDENTIFIER', 'local')
+
+        learning_status = givematerial.learningstatus.SqliteBasedStatus(
+            sqlite_conn, user_identifier)
+
     else:
         raise NotImplementedError(
             f'Unknown learnable provider "{learnable_provider}"')

@@ -3,6 +3,7 @@ import json
 import logging
 from pathlib import Path
 import requests
+import sqlite3
 import tempfile
 import time
 from typing import Any, Dict, Iterable, List, Optional
@@ -30,6 +31,37 @@ class FileBasedStatus(LearnableStatus):
 
     def get_learning_learnables(self) -> List[str]:
         return self._read_words_file(self.learning_words_file)
+
+    @staticmethod
+    def _read_words_file(path: Optional[Path]) -> List[str]:
+        try:
+            with open(path) as f:
+                return [word.strip() for word in f]
+        except OSError:
+            return []
+
+
+class SqliteBasedStatus(LearnableStatus):
+    """Read learning status from SQLite"""
+    def __init__(self, conn: sqlite3.Connection, user_identifier: str):
+        self.conn = conn
+        self.user_identifier = user_identifier
+
+    def get_known_learnables(self) -> List[str]:
+        return self._get_by_status('known')
+
+    def get_learning_learnables(self) -> List[str]:
+        return self._get_by_status('learning')
+
+    def _get_by_status(self, status: str) -> List[str]:
+        cur = self.conn.cursor()
+
+        cur.execute(
+            'SELECT learnable FROM user_status WHERE user_id = ? '
+            'AND status = ?',
+            (self.user_identifier, status))
+
+        return [row[0] for row in cur.fetchall()]
 
     @staticmethod
     def _read_words_file(path: Optional[Path]) -> List[str]:
