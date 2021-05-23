@@ -18,6 +18,7 @@
             <ul>
                 <li>learning ({{ recommendation.learning|length }}): {{ ' '.join(recommendation.learning) }}</li>
                 <li>unknown ({{ recommendation.unknown|length }}): {{ ' '.join(recommendation.unknown) }}</li>
+                <li>known ({{ recommendation.known|length }}): {{ ' '.join(recommendation.known) }}</li>
             </ul>
         </div>
         {% if recommendation.url %}
