@@ -72,12 +72,17 @@ def home():
     else:
         recommendations = []
 
+    if token_finished_downloading is None:
+        auto_refresh = False
+    else:
+        auto_refresh = not token_finished_downloading
+
     return render_template(
         "home.html",
         recommendations=recommendations,
         wk_token=wk_token,
         token_finished_downloading=token_finished_downloading,
-        auto_refresh=not token_finished_downloading)
+        auto_refresh=auto_refresh)
 
 
 @app.route("/redirect/read")
