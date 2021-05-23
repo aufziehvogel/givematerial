@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    {% if wk_token and not token_finished_downloading %}
+        <div class="info">Your learning status is downloaded in the background. This page will refresh automatically every few seconds.</div>
+    {% endif %}
+
     <form action="/" method="post">
         <label for="wktoken">WK Token:</label>
         <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>

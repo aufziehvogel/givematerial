@@ -1,5 +1,7 @@
+import logging
+import os
 import sqlite3
-import sys
+import time
 
 from givematerial.learningstatus import LearnableStatus, WanikaniStatus
 from givematerial.cache import SqliteLearnableCache
@@ -15,14 +17,45 @@ def ingest(
     cache.update_cache(learning, known)
 
 
+def add_download_request(token: str, conn: sqlite3.Connection):
+    c = conn.cursor()
+    try:
+        c.execute('INSERT INTO token_requests (user_id) VALUES (?)', (token,))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        # just ignore duplicate errors
+        pass
+
+
+def get_open_download_requests(conn: sqlite3.Connection):
+    c = conn.cursor()
+    c.execute('SELECT user_id FROM token_requests')
+
+    return [row[0] for row in c.fetchall()]
+
+
+def finish_download_request(token: str, conn: sqlite3.Connection):
+    c = conn.cursor()
+    c.execute('DELETE FROM token_requests WHERE user_id = ?', (token,))
+    conn.commit()
+
+
+def loop(conn: sqlite3.Connection):
+    while True:
+        for token in get_open_download_requests(conn):
+            logging.info(f'Fetch info for token {token} from Wanikani')
+            status = WanikaniStatus(token)
+            cache = SqliteLearnableCache(conn, token)
+
+            ingest(status, cache)
+
+            finish_download_request(token, conn)
+
+        time.sleep(1)
+
+
 if __name__ == '__main__':
-    token = sys.argv[1]
-
-    status = WanikaniStatus(token)
-
-    conn = sqlite3.connect('givematerial.sqlite')
-    create_tables(conn)
-
-    cache = SqliteLearnableCache(conn, token)
-
-    ingest(status, cache)
+    logging.basicConfig(level=os.getenv('LOGLEVEL'))
+    sqlite_conn = sqlite3.connect('givematerial.sqlite')
+    create_tables(sqlite_conn)
+    loop(sqlite_conn)

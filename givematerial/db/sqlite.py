@@ -17,4 +17,9 @@ def create_tables(conn: sqlite3.Connection):
     )''')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_reading_list_user_id ON reading_list (user_id)')
 
+    cur.execute('''CREATE TABLE IF NOT EXISTS token_requests (
+        user_id TEXT
+    )''')
+    cur.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_token_requests_user_id ON token_requests (user_id)')
+
     conn.commit()

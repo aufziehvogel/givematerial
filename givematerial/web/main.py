@@ -7,6 +7,7 @@ import givematerial.db.sqlite
 import givematerial.extractors
 import givematerial.learningstatus
 from givematerial.recommendation import get_recommendations
+from givematerial.web import ingest
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET')
@@ -26,14 +27,22 @@ def get_conn():
 
 @app.route("/", methods=['get', 'post'])
 def home():
+    sqlite_conn = get_conn()
+
     wk_token = request.form.get('wktoken', default=None)
-    if not wk_token:
+    # if the user just logged in, add a download request for the token
+    if wk_token:
+        ingest.add_download_request(wk_token, sqlite_conn)
+    else:
         wk_token = session.get('wktoken', default=None)
 
+    token_finished_downloading = None
     if wk_token:
         session['wktoken'] = wk_token
 
-        sqlite_conn = get_conn()
+        # Check if the token data has already been downloaded
+        open_dl_requests = ingest.get_open_download_requests(sqlite_conn)
+        token_finished_downloading = wk_token not in open_dl_requests
 
         language = 'jp'
         learning_status = givematerial.learningstatus.SqliteBasedStatus(
@@ -63,7 +72,9 @@ def home():
     return render_template(
         "home.html",
         recommendations=recommendations,
-        wk_token=wk_token)
+        wk_token=wk_token,
+        token_finished_downloading=token_finished_downloading,
+        auto_refresh=not token_finished_downloading)
 
 
 @app.route("/redirect/read")
