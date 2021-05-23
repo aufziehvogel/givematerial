@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, g, redirect
+from flask import Flask, render_template, request, session, g, redirect, url_for
 import os
 from pathlib import Path
 import sqlite3
@@ -33,6 +33,8 @@ def home():
     # if the user just logged in, add a download request for the token
     if wk_token:
         ingest.add_download_request(wk_token, sqlite_conn)
+        # redirect to same URL (to allow F5 refresh)
+        return redirect(url_for('home'))
     else:
         wk_token = session.get('wktoken', default=None)
 
@@ -66,6 +68,7 @@ def home():
         already_read = [item[0] for item in cur.fetchall()]
         recommendations = [rec for rec in recommendations
                            if rec.url not in already_read]
+
     else:
         recommendations = []
 
