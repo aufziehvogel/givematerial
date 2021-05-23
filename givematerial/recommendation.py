@@ -24,6 +24,7 @@ class Text:
 class TextStats:
     title: str
     text: str
+    collection: str
     known: List[str]
     unknown: List[str]
     learning: List[str]
@@ -153,6 +154,7 @@ def get_recommendations(
         text_stats = TextStats(
             title=text.title,
             text=text.text,
+            collection=text.collection,
             known=known_from_text,
             unknown=unknown_from_text,
             learning=learning_from_text,

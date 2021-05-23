@@ -8,6 +8,39 @@
   {% if auto_refresh %}
     <meta http-equiv="refresh" content="5"/>
   {% endif %}
+
+  <style>
+    body {
+      background-color: linen;
+    }
+
+    h1 {
+      color: maroon;
+      margin-left: 40px;
+    }
+
+    div.info {
+      border: 1px solid black;
+      padding: 0.5em;
+      margin: 1em;
+      background-color: #fffdd6;
+    }
+
+    article.recommendation {
+      margin-bottom: 3em;
+      margin-left: 2em;
+      margin-right: 2em;
+      display: inline-block;
+      min-width: 20em;
+      width: calc(33% - 6em);
+    }
+
+    .tagstyle {
+      background-color: #dedeff;
+      padding: 0.1em 0.2em 0.1em 0.5em;
+      border-left: 1px dashed blue;
+    }
+  </style>
 </head>
 
 <body>
