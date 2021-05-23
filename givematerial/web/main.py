@@ -32,6 +32,7 @@ def home():
     wk_token = request.form.get('wktoken', default=None)
     # if the user just logged in, add a download request for the token
     if wk_token:
+        session['wktoken'] = wk_token
         ingest.add_download_request(wk_token, sqlite_conn)
         # redirect to same URL (to allow F5 refresh)
         return redirect(url_for('home'))
@@ -40,8 +41,6 @@ def home():
 
     token_finished_downloading = None
     if wk_token:
-        session['wktoken'] = wk_token
-
         # Check if the token data has already been downloaded
         open_dl_requests = ingest.get_open_download_requests(sqlite_conn)
         token_finished_downloading = wk_token not in open_dl_requests
