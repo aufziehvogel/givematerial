@@ -83,13 +83,14 @@ def home():
 @app.route("/redirect/read")
 def redirect_read():
     url = request.args['url']
+    mark_read = bool(int(request.args['mark_read']))
 
     sqlite_conn = get_conn()
     cur = sqlite_conn.cursor()
 
     wk_token = session.get('wktoken', default=None)
 
-    if wk_token:
+    if mark_read and wk_token:
         cur.execute(
             'INSERT INTO reading_list (user_id, text_url) VALUES (?, ?)',
             (wk_token, url))
