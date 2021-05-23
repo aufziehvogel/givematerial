@@ -104,4 +104,9 @@ def redirect_read():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    custom_host = os.getenv('HOST_BIND', default=None)
+
+    if custom_host:
+        app.run(debug=True, host=custom_host)
+    else:
+        app.run(debug=True)
