@@ -27,6 +27,18 @@ def get_conn():
         return sqlite_conn
 
 
+def user_language(user_id: str, conn: sqlite3.Connection) -> str:
+    c = conn.cursor()
+    c.execute('SELECT language FROM user WHERE user_id = ?', (user_id,))
+    row = c.fetchone()
+    if not row:
+        language = 'jp'
+    else:
+        language = row[0]
+
+    return language
+
+
 @app.route("/", methods=['get', 'post'])
 def home():
     sqlite_conn = get_conn()
@@ -35,7 +47,8 @@ def home():
     # if the user just logged in, add a download request for the token
     if wk_token:
         session['wktoken'] = wk_token
-        ingest.add_download_request(wk_token, sqlite_conn)
+        if user_language(wk_token, sqlite_conn) == 'jp':
+            ingest.add_download_request(wk_token, sqlite_conn)
         # redirect to same URL (to allow F5 refresh)
         return redirect(url_for('home'))
     else:
@@ -43,13 +56,7 @@ def home():
 
     token_finished_downloading = None
     if wk_token:
-        c = sqlite_conn.cursor()
-        c.execute('SELECT language FROM user WHERE user_id = ?', (wk_token,))
-        row = c.fetchone()
-        if not row:
-            language = 'jp'
-        else:
-            language = row[0]
+        language = user_language(wk_token, sqlite_conn)
 
         # Check if the token data has already been downloaded
         open_dl_requests = ingest.get_open_download_requests(sqlite_conn)

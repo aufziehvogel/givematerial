@@ -6,7 +6,7 @@
     {% endif %}
 
     <form action="/" method="post">
-        <label for="wktoken">WK Token:</label>
+        <label for="wktoken">GiveMaterial Login or Wanikani Token:</label>
         <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>
         <input type="submit" name="submit" value="Continue"/>
     </form>
