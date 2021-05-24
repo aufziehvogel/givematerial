@@ -151,6 +151,11 @@ def get_recommendations(
 
         # add a uuid so that heapq never tries to compare TextStats to TextStats
         order = (abs(len(unknown_from_text) - 5), -len(learning_from_text), -len(relevant_lemmas), uuid.uuid4())
+
+        # if we cannot extract data from a text, totally ignore it
+        if len(relevant_lemmas) == 0:
+            continue
+
         text_stats = TextStats(
             title=text.title,
             text=text.text,
