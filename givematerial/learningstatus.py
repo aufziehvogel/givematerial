@@ -39,6 +39,8 @@ class FileBasedStatus(LearnableStatus):
                 return [word.strip() for word in f]
         except OSError:
             return []
+        except TypeError:
+            return []
 
 
 class SqliteBasedStatus(LearnableStatus):

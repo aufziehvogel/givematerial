@@ -122,7 +122,15 @@ def push_learning_status():
         return jsonify({'error': 'user does not exist'}), 401
 
     cache = SqliteLearnableCache(sqlite_conn, user_id)
-    cache.update_cache(data['learning'], data['known'])
+    learning, known = cache.read_cache()
+
+    # remove older state
+    learning = list(set(learning).difference(data['known']))
+    known = list(set(known).difference(data['learning']))
+    learning += data['learning']
+    known += data['known']
+
+    cache.update_cache(learning, known)
 
     return jsonify({})
 
