@@ -3,6 +3,12 @@ import sqlite3
 
 def create_tables(conn: sqlite3.Connection):
     cur = conn.cursor()
+    cur.execute('''CREATE TABLE IF NOT EXISTS user (
+        user_id TEXT,
+        language TEXT
+    )''')
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_user_user_id ON user (user_id)')
+
     cur.execute('''CREATE TABLE IF NOT EXISTS user_status (
         learnable TEXT,
         status TEXT,

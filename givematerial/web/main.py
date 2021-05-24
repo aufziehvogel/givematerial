@@ -43,16 +43,31 @@ def home():
 
     token_finished_downloading = None
     if wk_token:
+        c = sqlite_conn.cursor()
+        c.execute('SELECT language FROM user WHERE user_id = ?', (wk_token,))
+        row = c.fetchone()
+        if not row:
+            language = 'jp'
+        else:
+            language = row[0]
+
         # Check if the token data has already been downloaded
         open_dl_requests = ingest.get_open_download_requests(sqlite_conn)
         token_finished_downloading = wk_token not in open_dl_requests
 
-        language = 'jp'
         learning_status = givematerial.learningstatus.SqliteBasedStatus(
             sqlite_conn, wk_token)
         known_words = learning_status.get_known_learnables()
         learning_words = learning_status.get_learning_learnables()
-        learnable_extractor = givematerial.extractors.JapaneseKanjiExtractor()
+        if language == 'jp':
+            learnable_extractor = \
+                givematerial.extractors.JapaneseKanjiExtractor()
+        elif language == 'hr':
+            # Classla does not work inside flask, so we have to rely on
+            # pre-parsed data from the cache
+            learnable_extractor = givematerial.extractors.NoopExtractor()
+        else:
+            raise NotImplementedError('Unsupported language')
 
         # TODO: Cleanup these definitions
         texts_folder = Path('data') / 'texts'
@@ -88,9 +103,16 @@ def home():
 
 @app.route("/learning-status", methods=['post'])
 def push_learning_status():
-    sqlite_conn = get_conn()
     data = request.json
     user_id = data['token']
+
+    sqlite_conn = get_conn()
+    # check whether user exists
+    c = sqlite_conn.cursor()
+    c.execute('SELECT COUNT(*) FROM user WHERE user_id = ?', (user_id,))
+    count = c.fetchone()[0]
+    if count == 0:
+        return jsonify({'error': 'user does not exist'}), 401
 
     cache = SqliteLearnableCache(sqlite_conn, user_id)
     cache.update_cache(data['learning'], data['known'])

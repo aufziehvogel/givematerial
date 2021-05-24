@@ -5,6 +5,11 @@ import re
 from typing import Dict, List, Optional
 
 
+class NoopExtractor():
+    def extract_learnables(self, text: str) -> List[str]:
+        return []
+
+
 class CroatianLemmatizer():
     def __init__(self, word_freqs_file: Path):
         self.freqs = self._load_lemma_frequencies(word_freqs_file)
