@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, session, g, redirect, url_for
+from flask import Flask, render_template, request, session, g, redirect, \
+    url_for, jsonify
 import os
 from pathlib import Path
 import sqlite3
 
+from givematerial.cache import SqliteLearnableCache
 import givematerial.db.sqlite
 import givematerial.extractors
 import givematerial.learningstatus
@@ -82,6 +84,18 @@ def home():
         wk_token=wk_token,
         token_finished_downloading=token_finished_downloading,
         auto_refresh=auto_refresh)
+
+
+@app.route("/learning-status", methods=['post'])
+def push_learning_status():
+    sqlite_conn = get_conn()
+    data = request.json
+    user_id = data['token']
+
+    cache = SqliteLearnableCache(sqlite_conn, user_id)
+    cache.update_cache(data['learning'], data['known'])
+
+    return jsonify({})
 
 
 @app.route("/redirect/read")
