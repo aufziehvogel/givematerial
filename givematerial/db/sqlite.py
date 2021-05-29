@@ -5,7 +5,8 @@ def create_tables(conn: sqlite3.Connection):
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS user (
         user_id TEXT,
-        language TEXT
+        language TEXT,
+        last_login DATETIME
     )''')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_user_user_id ON user (user_id)')
 

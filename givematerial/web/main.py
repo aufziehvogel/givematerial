@@ -50,6 +50,12 @@ def home():
         session['wktoken'] = wk_token
         if user_language(wk_token, sqlite_conn) == 'jp':
             ingest.add_download_request(wk_token, sqlite_conn)
+        else:
+            sqlite_conn.execute(
+                'UPDATE user SET last_login = "now" WHERE user_id = ?',
+                (wk_token,))
+            sqlite_conn.commit()
+
         # redirect to same URL (to allow F5 refresh)
         return redirect(url_for('home'))
     else:
