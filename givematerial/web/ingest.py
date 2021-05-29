@@ -44,11 +44,17 @@ def loop(conn: sqlite3.Connection):
     while True:
         for token in get_open_download_requests(conn):
             logging.info(f'Fetch info for token {token} from Wanikani')
-            status = WanikaniStatus(token)
-            cache = SqliteLearnableCache(conn, token)
+            try:
+                status = WanikaniStatus(token)
+                cache = SqliteLearnableCache(conn, token)
 
-            ingest(status, cache)
+                ingest(status, cache)
+            except:
+                logging.exception('Could not update learning status')
 
+            # even on exception mark as finished due to invalid tokens
+            # TODO: Check invalid tokens in advance and re-try other failures
+            # a few times
             finish_download_request(token, conn)
 
         time.sleep(1)
