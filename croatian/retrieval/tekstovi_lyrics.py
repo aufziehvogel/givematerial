@@ -15,6 +15,7 @@ class Lyrics:
     artist: str
     title: str
     text: str
+    url: str
 
 
 def fetch_lyrics_urls(artist_url: str) -> List[str]:
@@ -31,7 +32,7 @@ def fetch_lyrics(lyrics_url: str) -> Lyrics:
     lyrics_text = '\n\n'.join(lyrics)
     lyrics_text = lyrics_text.replace('\r\n', '\n')
 
-    return Lyrics(artist=artist, title=title, text=lyrics_text)
+    return Lyrics(artist=artist, title=title, text=lyrics_text, url=lyrics_url)
 
 
 if __name__ == '__main__':
@@ -81,6 +82,7 @@ if __name__ == '__main__':
                 'title': f'{lyrics.artist} - {lyrics.title}',
                 'text': lyrics.text,
                 'language': 'hr',
+                'url': lyrics.url,
             }
             json.dump(data, f)
 
