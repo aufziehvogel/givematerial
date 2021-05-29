@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <p>
+            If you are using GiveMaterial for Japanese with Wanikani you do
+            not need to register. Just use your Wanikani token to login.
+        </p>
+        <p>
+            To use GiveMaterial you only need a login token for each language
+            you want to learn. You can then push your Anki learning progress
+            to GiveMaterial using this token. On the front page you can login
+            with this token.
+        </p>
+    </div>
+
+    <form action="{{ url_for('register') }}" method="post">
+        <select id="language" name="language">
+            <option name="hr" value="hr">Croatian</option>
+        </select>
+        <input type="submit" name="submit" value="Request Login"/>
+    </form>
+
+    {% if token %}
+        <div>
+            <p>
+                Your login is <span class="givematerial-login">{{ token }}</span>.
+            </p>
+            <p>
+                In order to use it, you must use Anki for vocabulary review. Install the
+                Anki add-on <a href="https://ankiweb.net/shared/info/2055492159">AnkiConnect</a>.
+                Then, run <code>givematerial/web/push_local_state.py --username {{ token }} anki --deck YourDeckName</code> to import your learning status.
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}

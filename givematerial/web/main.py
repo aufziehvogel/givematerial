@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, session, g, redirect, \
 import os
 from pathlib import Path
 import sqlite3
+import uuid
 
 from givematerial.cache import SqliteLearnableCache
 import givematerial.db.sqlite
@@ -152,6 +153,24 @@ def redirect_read():
         sqlite_conn.commit()
 
     return redirect(url)
+
+
+@app.route("/register", methods=['get', 'post'])
+def register():
+    token = None
+
+    if 'language' in request.form:
+        language = request.form['language']
+
+        token = str(uuid.uuid4())
+        sqlite_conn = get_conn()
+        cur = sqlite_conn.cursor()
+        cur.execute(
+            'INSERT INTO user (user_id, language) VALUES (?, ?)',
+            (token, language))
+        sqlite_conn.commit()
+
+    return render_template('register.html', token=token)
 
 
 if __name__ == "__main__":

@@ -62,12 +62,20 @@
       padding: 0.1em 0.2em 0.1em 0.5em;
       border-left: 1px dashed blue;
     }
+
+    .givematerial-login {
+      border: 1px solid gray;
+      background: #ddd;
+      padding: 5px 3px 0 3px;
+    }
   </style>
 </head>
 
 <body>
-  <h1>GiveMaterial</h1>
+  <h1><a href="{{ url_for('home') }}">GiveMaterial</a></h1>
   <div id="heading-subline">Get learning recommendations for foreign language material</div>
+
+  <a href="{{ url_for('register') }}">Register</a>
 
   <div id="main">
     {% block content %}{% endblock %}
