@@ -19,6 +19,17 @@ DB_NAME = 'givematerial.sqlite'
 givematerial.db.sqlite.create_tables(sqlite3.connect(DB_NAME))
 
 
+def public_registration():
+    return bool(int(os.getenv('PUBLIC_REGISTRATION', default=0)))
+
+
+@app.context_processor
+def global_config_variables():
+    return {
+        'public_registration': public_registration(),
+    }
+
+
 def get_conn():
     if 'sqlite_conn' in g:
         return g.sqlite_conn
@@ -169,6 +180,9 @@ def redirect_read():
 
 @app.route("/register", methods=['get', 'post'])
 def register():
+    if not public_registration():
+        return 'Public registration not enabled', 404
+
     token = None
 
     if 'language' in request.form:
