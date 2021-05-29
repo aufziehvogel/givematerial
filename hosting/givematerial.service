@@ -1,0 +1,15 @@
+[Unit]
+Description=GiveMaterial Web
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/uwsgi -s /tmp/givematerial.sock -C --manage-script-name --mount /=givematerial.web.main:app
+User=http
+Group=http
+
+Environment=PUBLIC_REGISTRATION=0
+Environment=FLASK_SECRET=
+
+[Install]
+WantedBy=multi-user.target

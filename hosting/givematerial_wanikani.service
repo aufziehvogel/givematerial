@@ -1,0 +1,14 @@
+[Unit]
+Description=GiveMaterial Wanikani Pull
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=python givematerial/web/ingest.py
+User=givematerial
+Group=users
+
+Environment=LOGLEVEL=INFO
+
+[Install]
+WantedBy=multi-user.target
