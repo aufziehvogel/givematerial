@@ -24,7 +24,7 @@ def fetch_article_urls(feed_url: str) -> List[str]:
 def fetch_article(url: str) -> Text:
     r = requests.get(url)
     title = xextract.String(css='.single__title .title').parse(r.text)[0]
-    content = xextract.String(css='.article__content', attr='_all_text').parse(r.text)
+    content = xextract.String(css='.article__content', attr='_all_text').parse(r.text)[0]
 
     return Text(title=title, text=content, url=url)
 
