@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Language Recommendation</h2>
+
+<p>
+    GiveMaterial has a collection of pre-analyzed material (e.g. texts or songs) that it tries to match to your
+    current knowledge of a foreign language. The comparison is usually based on vocabulary, but it can also be
+    based on other information like for example kanji for Japanese.
+</p>
+
+<p>
+    You can mark texts as read in order to hide them from future recommendations.
+</p>
+
+<h2>Learning Status Providers</h2>
+<p>
+    GiveMaterial does not manage your learning progress. Your learning progress is fetched from other learning tools,
+    for instance Anki for vocabulary or Wanikani for Japanese kanji. You learn your vocabulary and kanji in the
+    external program and on your next visit to GiveMaterial you will see new recommendations.
+</p>
+
+<p>
+    As for Wanikani, GiveMaterial can automatically pull your learning progress from their programming interface.
+</p>
+
+<p>
+    Anki does not allow public access to your learning progress (not even through Ankiweb). Thus, for Anki you have to
+    regularly push your updates. This can be achieved with a script from the
+    <a href="https://github.com/aufziehvogel/givematerial/">GiveMaterial repository</a>.
+</p>
+{% endblock content %}

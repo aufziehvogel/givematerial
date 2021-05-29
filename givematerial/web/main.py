@@ -173,6 +173,11 @@ def register():
     return render_template('register.html', token=token)
 
 
+@app.route("/howworks")
+def howworks():
+    return render_template('howworks.html')
+
+
 if __name__ == "__main__":
     custom_host = os.getenv('HOST_BIND', default=None)
 
