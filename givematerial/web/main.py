@@ -9,7 +9,7 @@ from givematerial.cache import SqliteLearnableCache
 import givematerial.db.sqlite
 import givematerial.extractors
 import givematerial.learningstatus
-from givematerial.recommendation import get_recommendations
+from givematerial import recommendation
 from givematerial.web import ingest
 
 app = Flask(__name__)
@@ -56,6 +56,7 @@ def home():
         wk_token = session.get('wktoken', default=None)
 
     token_finished_downloading = None
+    most_common_words = []
     if wk_token:
         language = user_language(wk_token, sqlite_conn)
 
@@ -81,9 +82,13 @@ def home():
         texts_folder = Path('data') / 'texts'
         cache_folder = Path('data') / language / 'cache'
 
-        recommendations = get_recommendations(
+        recommendations = recommendation.get_recommendations(
             known_words, learning_words, cache_folder, texts_folder, language,
             learnable_extractor, count=20)
+        most_common_words = recommendation.most_common_words(
+            known_words, learning_words,
+            cache_folder, texts_folder, language, learnable_extractor,
+            count=100)
 
         # TODO: Better (generic) scheme for hiding already finished texts
         cur = sqlite_conn.cursor()
@@ -104,6 +109,7 @@ def home():
     return render_template(
         "home.html",
         recommendations=recommendations,
+        most_common_words=[word for word, count in most_common_words],
         wk_token=wk_token,
         token_finished_downloading=token_finished_downloading,
         auto_refresh=auto_refresh)

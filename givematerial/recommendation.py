@@ -1,3 +1,4 @@
+import collections
 import json
 import os
 from pathlib import Path
@@ -5,7 +6,7 @@ import heapq
 import dataclasses
 import sqlite3
 import uuid
-from typing import List, Iterable, Optional
+from typing import List, Iterable, Optional, Tuple
 
 import givematerial.extractors
 import givematerial.learningstatus
@@ -169,6 +170,27 @@ def get_recommendations(
 
     return [ts for _, ts in heapq.nsmallest(count, recommendations)]
 
+
+def most_common_words(
+        known_words: List[str], learning_words: List[str], cache_folder: Path,
+        texts_folder: Path, language: str,
+        learnable_extractor, count: int = 100) -> List[Tuple[str, int]]:
+    cache = LearnableCache(cache_folder)
+
+    counter = collections.Counter()
+
+    for text in iterate_texts(texts_folder, language):
+        relevant_lemmas = cache.check_cache(text.title)
+        if len(relevant_lemmas) == 0:
+            relevant_lemmas = learnable_extractor.extract_learnables(text.text)
+            cache.write_cache(text.title, relevant_lemmas)
+
+        not_unknown_words = known_words + learning_words
+        yet_unknown_words = set(relevant_lemmas).difference(not_unknown_words)
+
+        counter.update(yet_unknown_words)
+
+    return counter.most_common(count)
 
 # Not used at the moment, will implement later
 #def calc_artist_summary():
