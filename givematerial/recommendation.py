@@ -1,4 +1,5 @@
 import collections
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -69,7 +70,8 @@ class LearnableCache:
             json.dump(lemmas, f)
 
     def _cache_file(self, title: str) -> Path:
-        return self.cache_folder / f'{title}.json'
+        filename = str(hashlib.sha256(title.encode('utf-8')).hexdigest())
+        return self.cache_folder / f'{filename}.json'
 
 
 def calc_recommendations(language) -> List[TextStats]:
