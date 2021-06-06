@@ -10,6 +10,14 @@ def create_tables(conn: sqlite3.Connection):
     )''')
     cur.execute('CREATE INDEX IF NOT EXISTS idx_user_user_id ON user (user_id)')
 
+    # TODO: Use a numeric id for foreign key to user
+    cur.execute('''CREATE TABLE IF NOT EXISTS srs (
+        user_id TEXT,
+        name TEXT,
+        login TEXT
+    )''')
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_srs_user_id ON srs (user_id)')
+
     cur.execute('''CREATE TABLE IF NOT EXISTS user_status (
         learnable TEXT,
         status TEXT,
