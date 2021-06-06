@@ -33,13 +33,15 @@
     </article>
     {% endfor %}
 
-    <h2>Most Common Unknown Words</h2>
+    {% if most_common_words|length > 0 %}
+        <h2>Most Common Unknown Words</h2>
 
-    <p>Use these most common words to quickly create a list of words that you already know.</p>
+        <p>Use these most common words to quickly create a list of words that you already know.</p>
 
-    <ul>
-    {% for word in most_common_words %}
-        <li>{{ word }}</li>
-    {% endfor %}
-    </ul>
+        <ul>
+        {% for word in most_common_words %}
+            <li>{{ word }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}
