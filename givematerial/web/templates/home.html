@@ -2,34 +2,40 @@
 
 {% block content %}
     {% if wk_token and not token_finished_downloading %}
-        <div class="info">Your learning status is being downloaded in the background. This page will refresh automatically every few seconds.</div>
+        <div class="alert alert-info" role="alert">
+            Your learning status is being downloaded in the background. This page will refresh automatically every few seconds.
+        </div>
     {% endif %}
 
-    <form action="/" method="post">
-        <label for="wktoken">GiveMaterial Login or Wanikani Token:</label>
-        <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>
-        <input type="submit" name="submit" value="Continue"/>
-    </form>
+    <div id="login-area">
+        <form action="/" method="post">
+            <label for="wktoken">GiveMaterial Login or Wanikani Token:</label>
+            <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>
+            <input type="submit" name="submit" value="Continue"/>
+        </form>
+    </div>
 
     {% for recommendation in recommendations %}
-    <article class="recommendation">
-        <h2>{{ recommendation.title }}</h2>
-        <div class="meta">
+    <article class="card" style="width: 18rem;">
+        <div class="card-header text-muted">
             <span class="text-collection tagstyle">{{ recommendation.collection }}</span>
         </div>
-        <div class="stats">
-            <ul>
-                <li>learning ({{ recommendation.learning|length }}): {{ ' '.join(recommendation.learning) }}</li>
-                <li>unknown ({{ recommendation.unknown|length }}): {{ ' '.join(recommendation.unknown) }}</li>
-                <li>known ({{ recommendation.known|length }}): {{ ' '.join(recommendation.known) }}</li>
-            </ul>
+        <div class="card-body">
+            <h5 class="card-title">{{ recommendation.title }}</h5>
+            <p class="card-text">
+                <ul>
+                    <li>learning ({{ recommendation.learning|length }}): {{ ' '.join(recommendation.learning) }}</li>
+                    <li>unknown ({{ recommendation.unknown|length }}): {{ ' '.join(recommendation.unknown) }}</li>
+                    <li>known ({{ recommendation.known|length }}): {{ ' '.join(recommendation.known) }}</li>
+                </ul>
+            </p>
+            {% if recommendation.url %}
+                <a href="{{ url_for('redirect_read', url=recommendation.url, mark_read=1) }}" class="btn btn-primary">Read text</a>
+                <br/>
+                <br/>
+                <a href="{{ url_for('redirect_read', url=recommendation.url, mark_read=0) }}" class="card-link">Read text without marking as finished</a>
+            {% endif %}
         </div>
-        {% if recommendation.url %}
-            <div class="more">
-                <a href="{{ url_for('redirect_read', url=recommendation.url, mark_read=1) }}" class="read-finished">Read text</a>
-                <a href="{{ url_for('redirect_read', url=recommendation.url, mark_read=0) }}" class="read-no-finished">Read text without marking as finished</a>
-            </div>
-        {% endif %}
     </article>
     {% endfor %}
 

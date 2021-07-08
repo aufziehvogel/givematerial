@@ -9,99 +9,48 @@
     <meta http-equiv="refresh" content="5"/>
   {% endif %}
 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
   <style>
-    body {
-      background-color: #f3ffff;
-      font-family: sans-serif;
-    }
-
-    h1 {
-      margin-left: 0px;
-    }
-
-    h1 a {
-      color: #163301;
-    }
-
-    #heading-subline {
-      margin-bottom: 2em;
-      font-weight: bold;
-      margin-left: 0px;
-    }
-
-    #main-nav {
-      background-color: #a5cc87;
+    .card {
+      display: inline-block;
+      margin-right: 1em;
       margin-bottom: 1em;
+      vertical-align: top;
     }
 
-    #main-nav a {
-      display: inline-block;
-      padding: 0.5em;
-      color: black;
-      font-weight: bold;
-    }
-
-    #main-nav a:hover {
-      background-color: #7aa35a;
-    }
-
-    div.info {
-      border: 1px solid black;
-      padding: 0.5em;
-      margin: 1em;
-      background-color: #fffdd6;
-    }
-
-    article.recommendation {
-      margin-bottom: 3em;
-      margin-left: 2em;
-      margin-right: 2em;
-      display: inline-block;
-      min-width: 20em;
-      width: calc(33% - 6em);
-    }
-
-    a.read-finished {
-      background-color: #d7ffd4;
-      border: 1px solid green;
-      border-radius: 5px;
-      padding: 0.3em;
-      margin: 0.3em 0;
-      display: inline-block;
-    }
-
-    a.read-no-finished {
-      display: block;
-      padding: 0.3em;
-      font-size: 0.8em;
-      float: right;
-    }
-
-    .tagstyle {
-      background-color: #dedeff;
-      padding: 0.1em 0.2em 0.1em 0.5em;
-      border-left: 1px dashed blue;
-    }
-
-    .givematerial-login {
-      border: 1px solid gray;
-      background: #ddd;
-      padding: 5px 3px 0 3px;
+    #login-area {
+      margin-top: 1em;
+      margin-bottom: 1em;
     }
   </style>
 </head>
 
 <body>
-  <h1><a href="{{ url_for('home') }}">GiveMaterial</a></h1>
-  <div id="heading-subline">Get learning recommendations for foreign language material</div>
-
-  <div id="main-nav">
-    <a href="{{ url_for('home') }}">Main</a>
-    {% if public_registration %}
-      <a href="{{ url_for('register') }}">Register</a>
-    {% endif %}
-    <a href="{{ url_for('howworks') }}">How does it work?</a>
-  </div>
+  <nav class="navbar navbar-expand-sm navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('home') }}">GiveMaterial</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Main</a>
+          </li>
+          {% if public_registration %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('howworks') }}">How does it work?</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
   <div id="main">
     {% block content %}{% endblock %}
