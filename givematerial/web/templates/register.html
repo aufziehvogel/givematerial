@@ -1,9 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    You have the following choices for login:
+    <h2>Social Media Login</h2>
 
-    <ul>
-        <li><a href="{{ url_for('github.login') }}">Login with Github</a></li>
-    </ul>
+    Login with any of the following social media accounts:
+
+    <div class="login-providers">
+        <a href="{{ url_for('github.login') }}" class="social-media-login github"><img src="{{ url_for('static', filename='github.png') }}" alt="Github"/> Login with Github</a>
+    </div>
 {% endblock %}
