@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, session, g, redirect, \
     url_for, jsonify
+from flask_dance.contrib.github import make_github_blueprint, github
+from flask_dance.consumer import oauth_authorized
 import os
 from pathlib import Path
 import sqlite3
@@ -14,9 +16,35 @@ from givematerial.web import ingest
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET')
+blueprint_gh = make_github_blueprint(
+    client_id=os.getenv('GITHUB_CLIENT_ID'),
+    client_secret=os.getenv('GITHUB_CLIENT_SECRET'),
+)
+app.register_blueprint(blueprint_gh, url_prefix="/login")
 
 DB_NAME = 'givematerial.sqlite'
 givematerial.db.sqlite.create_tables(sqlite3.connect(DB_NAME))
+
+
+@oauth_authorized.connect_via(blueprint_gh)
+def logged_in(blueprint, token):
+    if not token:
+        return False
+
+    resp = blueprint.session.get("/user")
+    if not resp.ok:
+        return False
+
+    print(resp)
+    github_info = resp.json()
+    print(github_info)
+    github_user_id = str(github_info["login"])
+
+    print(blueprint.name)
+    print(token)
+    print(github_user_id)
+
+    return False
 
 
 def public_registration():

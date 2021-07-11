@@ -1,4 +1,6 @@
+blinker
 classla
 flask
+flask-dance
 requests
 xextract
