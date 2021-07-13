@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, session, g, redirect, \
     url_for, jsonify
 from flask_dance.contrib.github import make_github_blueprint, github
 from flask_dance.consumer import oauth_authorized
+from flask_login import LoginManager, login_user, UserMixin, \
+    current_user
 import os
 from pathlib import Path
 import sqlite3
@@ -15,6 +17,8 @@ from givematerial import recommendation
 from givematerial.web import ingest
 
 app = Flask(__name__)
+login_manager = LoginManager()
+login_manager.init_app(app)
 app.secret_key = os.getenv('FLASK_SECRET')
 blueprint_gh = make_github_blueprint(
     client_id=os.getenv('GITHUB_CLIENT_ID'),
@@ -24,6 +28,16 @@ app.register_blueprint(blueprint_gh, url_prefix="/login")
 
 DB_NAME = 'givematerial.sqlite'
 givematerial.db.sqlite.create_tables(sqlite3.connect(DB_NAME))
+
+
+class User(UserMixin):
+    def __init__(self, user_id):
+        self.id = user_id
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
 
 
 @oauth_authorized.connect_via(blueprint_gh)
@@ -43,6 +57,21 @@ def logged_in(blueprint, token):
     print(blueprint.name)
     print(token)
     print(github_user_id)
+
+    sqlite_conn = get_conn()
+    cur = sqlite_conn.cursor()
+    cur.execute(
+        'INSERT OR IGNORE INTO user '
+        '(user_id, oauth_name, oauth_provider) VALUES (?, ?, ?)',
+        (str(uuid.uuid4()), github_user_id, blueprint.name))
+    sqlite_conn.commit()
+
+    c = cur.execute('SELECT user_id FROM user WHERE oauth_name = ? '
+        'AND oauth_provider = ?', (github_user_id, blueprint.name))
+
+    user = User(c.fetchone()[0])
+    print(user.get_id())
+    login_user(user)
 
     return False
 
@@ -81,6 +110,7 @@ def user_language(user_id: str, conn: sqlite3.Connection) -> str:
 
 @app.route("/", methods=['get', 'post'])
 def home():
+    print(current_user.get_id())
     sqlite_conn = get_conn()
 
     wk_token = request.form.get('wktoken', default=None)

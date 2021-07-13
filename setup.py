@@ -14,6 +14,7 @@ install_requires = [
     'classla',
     'flask',
     'flask-dance',
+    'flask-login',
     'requests',
     'xextract',
 ]

@@ -5,10 +5,14 @@ def create_tables(conn: sqlite3.Connection):
     cur = conn.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS user (
         user_id TEXT,
+        oauth_name TEXT,
+        oauth_provider TEXT,
+        display_name TEXT,
         language TEXT,
-        last_login DATETIME
+        last_login DATETIME,
+        UNIQUE(oauth_name, oauth_provider),
+        UNIQUE(user_id)
     )''')
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_user_user_id ON user (user_id)')
 
     # TODO: Use a numeric id for foreign key to user
     cur.execute('''CREATE TABLE IF NOT EXISTS srs (
