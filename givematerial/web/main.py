@@ -62,7 +62,7 @@ def logged_in(blueprint, token):
     cur = sqlite_conn.cursor()
     cur.execute(
         'INSERT OR IGNORE INTO user '
-        '(user_id, oauth_name, oauth_provider) VALUES (?, ?, ?)',
+        '(user_id, oauth_name, oauth_provider, language) VALUES (?, ?, ?, "hr")',
         (str(uuid.uuid4()), github_user_id, blueprint.name))
     sqlite_conn.commit()
 
@@ -115,15 +115,16 @@ def home():
 
     wk_token = request.form.get('wktoken', default=None)
     # if the user just logged in, add a download request for the token
-    if wk_token:
+    if current_user.get_id():
+        sqlite_conn.execute(
+            'UPDATE user SET last_login = datetime("now") WHERE user_id = ?',
+            (current_user.get_id(),))
+        sqlite_conn.commit()
+        wk_token = current_user.get_id()
+    elif wk_token:
         session['wktoken'] = wk_token
         if user_language(wk_token, sqlite_conn) == 'jp':
             ingest.add_download_request(wk_token, sqlite_conn)
-        else:
-            sqlite_conn.execute(
-                'UPDATE user SET last_login = "now" WHERE user_id = ?',
-                (wk_token,))
-            sqlite_conn.commit()
 
         # redirect to same URL (to allow F5 refresh)
         return redirect(url_for('home'))
@@ -194,6 +195,7 @@ def home():
 def push_learning_status():
     data = request.json
     user_id = data['token']
+    language = data['language']
 
     sqlite_conn = get_conn()
     # check whether user exists
@@ -203,7 +205,7 @@ def push_learning_status():
     if count == 0:
         return jsonify({'error': 'user does not exist'}), 401
 
-    cache = SqliteLearnableCache(sqlite_conn, user_id)
+    cache = SqliteLearnableCache(sqlite_conn, user_id, language)
     learning, known = cache.read_cache()
 
     # remove older state

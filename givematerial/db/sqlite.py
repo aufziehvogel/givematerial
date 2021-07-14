@@ -25,10 +25,11 @@ def create_tables(conn: sqlite3.Connection):
     cur.execute('''CREATE TABLE IF NOT EXISTS user_status (
         learnable TEXT,
         status TEXT,
-        user_id TEXT
+        user_id TEXT,
+        language TEXT
     )''')
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_user_status_user_id ON user_status (user_id)')
-    cur.execute('CREATE INDEX IF NOT EXISTS idx_user_status_user_id_status ON user_status (user_id, status)')
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_user_status_user_id ON user_status (user_id, language)')
+    cur.execute('CREATE INDEX IF NOT EXISTS idx_user_status_user_id_status ON user_status (user_id, status, language)')
 
     cur.execute('''CREATE TABLE IF NOT EXISTS reading_list (
         user_id TEXT,

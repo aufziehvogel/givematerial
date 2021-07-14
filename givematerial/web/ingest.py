@@ -46,7 +46,7 @@ def loop(conn: sqlite3.Connection):
             logging.info(f'Fetch info for token {token} from Wanikani')
             try:
                 status = WanikaniStatus(token)
-                cache = SqliteLearnableCache(conn, token)
+                cache = SqliteLearnableCache(conn, token, 'jp')
 
                 ingest(status, cache)
             except:

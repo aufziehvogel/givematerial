@@ -2,6 +2,7 @@
 
 import argparse
 import requests
+import json
 
 from givematerial.learningstatus import AnkiStatus, FileBasedStatus
 
@@ -15,6 +16,8 @@ if __name__ == '__main__':
         '--server-port', '-p', dest='port', default='5000')
     parser.add_argument(
         '--username', '-u', dest='username', required=True)
+    parser.add_argument(
+        '--language', '-l', dest='language', required=True)
 
     subparsers = parser.add_subparsers(dest='subparser_name')
 
@@ -39,6 +42,13 @@ if __name__ == '__main__':
         update_msg['learning'].append(learning_word)
 
     update_msg['token'] = args.username
-    remote_url = f'http://{args.host}:{args.port}/learning-status'
-    r = requests.post(remote_url, json=update_msg)
+    update_msg['language'] = args.language
+    if args.port == '80':
+        remote_url = f'http://{args.host}/learning-status'
+    else:
+        remote_url = f'http://{args.host}:{args.port}/learning-status'
+    print(remote_url)
+    print(json.dumps(update_msg))
+    headers = {'Content-Type':  'application/json'}
+    r = requests.post(remote_url, json=update_msg, headers=headers, timeout=5)
     print(r.json())
