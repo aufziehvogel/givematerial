@@ -1,3 +1,4 @@
+import abc
 import classla
 import json
 from pathlib import Path
@@ -5,12 +6,18 @@ import re
 from typing import Dict, List, Optional
 
 
-class NoopExtractor():
+class LearnableExtractor(abc.ABC):
+    @abc.abstractmethod
     def extract_learnables(self, text: str) -> List[str]:
         return []
 
 
-class CroatianLemmatizer():
+class NoopExtractor(LearnableExtractor):
+    def extract_learnables(self, text: str) -> List[str]:
+        return []
+
+
+class CroatianLemmatizer(LearnableExtractor):
     def __init__(self, word_freqs_file: Path):
         self.freqs = self._load_lemma_frequencies(word_freqs_file)
 
@@ -50,7 +57,7 @@ class CroatianLemmatizer():
             return json.load(f)
 
 
-class JapaneseKanjiExtractor:
+class JapaneseKanjiExtractor(LearnableExtractor):
     def extract_learnables(self, text: str) -> List[str]:
         regex = u'[\u4e00-\u9faf\u3400-\u4dbf]'
         p = re.compile(regex, re.U)

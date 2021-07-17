@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, session, g, redirect, \
 from flask_dance.contrib.github import make_github_blueprint, github
 from flask_dance.consumer import oauth_authorized
 from flask_login import LoginManager, login_user, UserMixin, \
-    current_user
+    current_user, login_required
 import os
 from pathlib import Path
 import sqlite3
@@ -37,6 +37,7 @@ class User(UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
+    print(user_id)
     return User(user_id)
 
 
@@ -72,6 +73,7 @@ def logged_in(blueprint, token):
     user = User(c.fetchone()[0])
     print(user.get_id())
     login_user(user)
+    print('logged in user')
 
     return False
 
@@ -106,6 +108,18 @@ def user_language(user_id: str, conn: sqlite3.Connection) -> str:
         language = row[0]
 
     return language
+
+
+def get_learnable_extractor(language: str) \
+        -> givematerial.extractors.LearnableExtractor:
+    if language == 'jp':
+        return givematerial.extractors.JapaneseKanjiExtractor()
+    elif language == 'hr':
+        # Classla does not work inside flask, so we have to rely on
+        # pre-parsed data from the cache
+        return givematerial.extractors.NoopExtractor()
+    else:
+        raise NotImplementedError('Unsupported language')
 
 
 @app.route("/", methods=['get', 'post'])
@@ -144,15 +158,7 @@ def home():
             sqlite_conn, wk_token)
         known_words = learning_status.get_known_learnables()
         learning_words = learning_status.get_learning_learnables()
-        if language == 'jp':
-            learnable_extractor = \
-                givematerial.extractors.JapaneseKanjiExtractor()
-        elif language == 'hr':
-            # Classla does not work inside flask, so we have to rely on
-            # pre-parsed data from the cache
-            learnable_extractor = givematerial.extractors.NoopExtractor()
-        else:
-            raise NotImplementedError('Unsupported language')
+        learnable_extractor = get_learnable_extractor(language)
 
         # TODO: Cleanup these definitions
         texts_folder = Path('data') / 'texts'
@@ -189,6 +195,51 @@ def home():
         wk_token=wk_token,
         token_finished_downloading=token_finished_downloading,
         auto_refresh=auto_refresh)
+
+
+@app.route('/recommendations/<language>')
+@login_required
+def recommendations(language: str):
+    sqlite_conn = get_conn()
+
+    most_common_words = []
+
+    if current_user.get_id():
+        learning_status = givematerial.learningstatus.SqliteBasedStatus(
+            sqlite_conn, current_user.get_id(), language)
+        known_words = learning_status.get_known_learnables()
+        learning_words = learning_status.get_learning_learnables()
+        learnable_extractor = get_learnable_extractor(language)
+
+        # TODO: Cleanup these definitions
+        texts_folder = Path('data') / 'texts'
+        cache_folder = Path('data') / language / 'cache'
+
+        recommendations = recommendation.get_recommendations(
+            known_words, learning_words, cache_folder, texts_folder, language,
+            learnable_extractor, count=20)
+        most_common_words = recommendation.most_common_words(
+            known_words, learning_words,
+            cache_folder, texts_folder, language, learnable_extractor,
+            count=100)
+
+        # TODO: Better (generic) scheme for hiding already finished texts
+        cur = sqlite_conn.cursor()
+        cur.execute(
+            'SELECT text_url FROM reading_list WHERE user_id = ?', (current_user.get_id(),))
+        already_read = [item[0] for item in cur.fetchall()]
+        recommendations = [rec for rec in recommendations
+                           if rec.url not in already_read]
+
+    else:
+        recommendations = []
+
+    return render_template(
+        "home.html",
+        recommendations=recommendations,
+        most_common_words=[word for word, count in most_common_words],
+        wk_token=current_user.get_id(),
+        token_finished_downloading=True)
 
 
 @app.route("/learning-status", methods=['post'])

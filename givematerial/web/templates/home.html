@@ -15,6 +15,16 @@
         </form>
     </div>
 
+    {% if wk_token %}
+    <ul class="nav">
+        {% for language, name in [('hr', 'Croatian'), ('jp', 'Japanese')] %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('recommendations', language=language) }}">{{ name }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     {% for recommendation in recommendations %}
     <article class="card" style="width: 18rem;">
         <div class="card-header text-muted">

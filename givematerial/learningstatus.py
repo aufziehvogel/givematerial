@@ -45,9 +45,12 @@ class FileBasedStatus(LearnableStatus):
 
 class SqliteBasedStatus(LearnableStatus):
     """Read learning status from SQLite"""
-    def __init__(self, conn: sqlite3.Connection, user_identifier: str):
+    def __init__(
+            self, conn: sqlite3.Connection, user_identifier: str,
+            language: str = None):
         self.conn = conn
         self.user_identifier = user_identifier
+        self.language = language
 
     def get_known_learnables(self) -> List[str]:
         return self._get_by_status('known')
@@ -58,10 +61,16 @@ class SqliteBasedStatus(LearnableStatus):
     def _get_by_status(self, status: str) -> List[str]:
         cur = self.conn.cursor()
 
-        cur.execute(
-            'SELECT learnable FROM user_status WHERE user_id = ? '
-            'AND status = ?',
-            (self.user_identifier, status))
+        if self.language:
+            cur.execute(
+                'SELECT learnable FROM user_status WHERE user_id = ? '
+                'AND status = ? AND language = ?',
+                (self.user_identifier, status, self.language))
+        else:
+            cur.execute(
+                'SELECT learnable FROM user_status WHERE user_id = ? '
+                'AND status = ?',
+                (self.user_identifier, status))
 
         return [row[0] for row in cur.fetchall()]
 
