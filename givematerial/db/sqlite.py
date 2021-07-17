@@ -10,6 +10,7 @@ def create_tables(conn: sqlite3.Connection):
         display_name TEXT,
         language TEXT,
         last_login DATETIME,
+        wanikani_token TEXT,
         UNIQUE(oauth_name, oauth_provider),
         UNIQUE(user_id)
     )''')

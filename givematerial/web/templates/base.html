@@ -68,7 +68,7 @@
     <div class="d-flex">
     {% if current_user.get_id() %}
       <ul class="navbar-nav">
-        <li class="nav-item">Welcome, {{ current_user.display_name }}</li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('settings') }}">{{ current_user.display_name }}</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
       </ul>
     {% else %}

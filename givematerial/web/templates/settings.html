@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id="settings-area">
+        <form action="{{ url_for('settings') }}" method="post">
+            <label for="wktoken">Wanikani Token:</label>
+            <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>
+            <input type="submit" name="submit" value="Save"/>
+        </form>
+    </div>
+{% endblock %}

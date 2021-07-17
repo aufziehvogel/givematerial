@@ -40,10 +40,12 @@ class User(UserMixin):
 def load_user(user_id):
     sqlite_conn = get_conn()
     cur = sqlite_conn.cursor()
-    cur.execute('SELECT oauth_name FROM user WHERE user_id = ?', (user_id,))
-    display_name = cur.fetchone()[0]
-
-    return User(user_id, display_name)
+    cur.execute('SELECT display_name FROM user WHERE user_id = ?', (user_id,))
+    try:
+        display_name = cur.fetchone()[0]
+        return User(user_id, display_name)
+    except TypeError:
+        return None
 
 
 @oauth_authorized.connect_via(blueprint_gh)
@@ -58,22 +60,25 @@ def logged_in(blueprint, token):
     print(resp)
     github_info = resp.json()
     print(github_info)
-    github_user_id = str(github_info["login"])
+    github_user_name = str(github_info["login"])
 
     print(blueprint.name)
     print(token)
-    print(github_user_id)
+    print(github_user_name)
 
     sqlite_conn = get_conn()
     cur = sqlite_conn.cursor()
     cur.execute(
         'INSERT OR IGNORE INTO user '
-        '(user_id, oauth_name, oauth_provider, language) VALUES (?, ?, ?, "hr")',
-        (str(uuid.uuid4()), github_user_id, blueprint.name))
+        '(user_id, oauth_name, oauth_provider, display_name, language) '
+        'VALUES (?, ?, ?, ?, "hr")',
+        (str(uuid.uuid4()), github_user_name, blueprint.name, github_user_name))
     sqlite_conn.commit()
 
-    c = cur.execute('SELECT user_id, oauth_name FROM user WHERE oauth_name = ? '
-        'AND oauth_provider = ?', (github_user_id, blueprint.name))
+    c = cur.execute(
+        'SELECT user_id, display_name FROM user '
+        'WHERE oauth_name = ? AND oauth_provider = ?',
+        (github_user_name, blueprint.name))
     row = c.fetchone()
 
     user = User(row[0], row[1])
@@ -316,6 +321,30 @@ def howworks():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+
+@app.route("/settings", methods=['get', 'post'])
+@login_required
+def settings():
+    sqlite_conn = get_conn()
+
+    wk_token = request.form.get('wktoken', default=None)
+    if wk_token:
+        sqlite_conn.execute(
+            'UPDATE user SET wanikani_token = ? WHERE user_id = ?',
+            (wk_token, current_user.get_id()))
+        sqlite_conn.commit()
+
+        # redirect to same URL (to allow F5 refresh)
+        return redirect(url_for('settings'))
+
+    c = sqlite_conn.cursor()
+    c.execute(
+        'SELECT wanikani_token FROM user WHERE user_id = ?',
+        (current_user.get_id(),))
+    wk_token = c.fetchone()[0]
+
+    return render_template('settings.html', wk_token=wk_token)
 
 
 if __name__ == "__main__":
