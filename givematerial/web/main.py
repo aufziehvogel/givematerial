@@ -84,15 +84,9 @@ def logged_in(blueprint, token):
     return False
 
 
-def public_registration():
-    return bool(int(os.getenv('PUBLIC_REGISTRATION', default=0)))
-
-
 @app.context_processor
 def global_config_variables():
-    return {
-        'public_registration': public_registration(),
-    }
+    return {}
 
 
 def get_conn():
@@ -295,25 +289,22 @@ def redirect_read():
     return redirect(url)
 
 
-@app.route("/register", methods=['get', 'post'])
-def register():
-    if not public_registration():
-        return 'Public registration not enabled', 404
+@app.route("/login", methods=['get', 'post'])
+def login():
+    #token = None
 
-    token = None
+    #if 'language' in request.form:
+    #    language = request.form['language']
 
-    if 'language' in request.form:
-        language = request.form['language']
+    #    token = str(uuid.uuid4())
+    #    sqlite_conn = get_conn()
+    #    cur = sqlite_conn.cursor()
+    #    cur.execute(
+    #        'INSERT INTO user (user_id, language) VALUES (?, ?)',
+    #        (token, language))
+    #    sqlite_conn.commit()
 
-        token = str(uuid.uuid4())
-        sqlite_conn = get_conn()
-        cur = sqlite_conn.cursor()
-        cur.execute(
-            'INSERT INTO user (user_id, language) VALUES (?, ?)',
-            (token, language))
-        sqlite_conn.commit()
-
-    return render_template('register.html', token=token)
+    return render_template('login.html')
 
 
 @app.route("/howworks")
