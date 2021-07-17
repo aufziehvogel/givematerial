@@ -70,6 +70,12 @@
         </ul>
       </div>
     </div>
+    {% if current_user.get_id() %}
+    <div class="d-flex">
+      <span>{{ current_user.display_name }}</span>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    {% endif %}
   </nav>
 
   <div id="main" class="container">

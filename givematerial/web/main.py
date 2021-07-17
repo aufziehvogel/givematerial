@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, session, g, redirect, \
 from flask_dance.contrib.github import make_github_blueprint, github
 from flask_dance.consumer import oauth_authorized
 from flask_login import LoginManager, login_user, UserMixin, \
-    current_user, login_required
+    current_user, login_required, logout_user
 import os
 from pathlib import Path
 import sqlite3
@@ -31,14 +31,19 @@ givematerial.db.sqlite.create_tables(sqlite3.connect(DB_NAME))
 
 
 class User(UserMixin):
-    def __init__(self, user_id):
+    def __init__(self, user_id: str, name: str):
         self.id = user_id
+        self.display_name = name
 
 
 @login_manager.user_loader
 def load_user(user_id):
-    print(user_id)
-    return User(user_id)
+    sqlite_conn = get_conn()
+    cur = sqlite_conn.cursor()
+    cur.execute('SELECT oauth_name FROM user WHERE user_id = ?', (user_id,))
+    display_name = cur.fetchone()[0]
+
+    return User(user_id, display_name)
 
 
 @oauth_authorized.connect_via(blueprint_gh)
@@ -67,10 +72,11 @@ def logged_in(blueprint, token):
         (str(uuid.uuid4()), github_user_id, blueprint.name))
     sqlite_conn.commit()
 
-    c = cur.execute('SELECT user_id FROM user WHERE oauth_name = ? '
+    c = cur.execute('SELECT user_id, oauth_name FROM user WHERE oauth_name = ? '
         'AND oauth_provider = ?', (github_user_id, blueprint.name))
+    row = c.fetchone()
 
-    user = User(c.fetchone()[0])
+    user = User(row[0], row[1])
     print(user.get_id())
     login_user(user)
     print('logged in user')
@@ -313,6 +319,12 @@ def register():
 @app.route("/howworks")
 def howworks():
     return render_template('howworks.html')
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
 
 
 if __name__ == "__main__":
