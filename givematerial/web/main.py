@@ -1,3 +1,4 @@
+import datetime
 from flask import Flask, render_template, request, session, g, redirect, \
     url_for, jsonify
 from flask_dance.contrib.github import make_github_blueprint, github
@@ -31,19 +32,26 @@ givematerial.db.sqlite.create_tables(sqlite3.connect(DB_NAME))
 
 
 class User(UserMixin):
-    def __init__(self, user_id: str, name: str):
+    def __init__(self, user_id: str, name: str, **kwargs):
         self.id = user_id
         self.display_name = name
+
+        self.wanikani_token = kwargs.get('wanikani_token', None)
+        self.last_wanikani_update = kwargs.get('last_wanikani_update', None)
 
 
 @login_manager.user_loader
 def load_user(user_id):
     sqlite_conn = get_conn()
     cur = sqlite_conn.cursor()
-    cur.execute('SELECT display_name FROM user WHERE user_id = ?', (user_id,))
+    cur.execute(
+        'SELECT display_name, wanikani_token, last_wanikani_update '
+        'FROM user WHERE user_id = ?', (user_id,))
     try:
-        display_name = cur.fetchone()[0]
-        return User(user_id, display_name)
+        row = cur.fetchone()
+        return User(
+            user_id, row[0], wanikani_token=row[1],
+            last_wanikani_update=row[2])
     except TypeError:
         return None
 
@@ -125,6 +133,18 @@ def get_learnable_extractor(language: str) \
         return givematerial.extractors.NoopExtractor()
     else:
         raise NotImplementedError('Unsupported language')
+
+
+@app.before_request
+def check_wanikani_data():
+    sqlite_conn = get_conn()
+
+    if current_user.is_authenticated and current_user.wanikani_token:
+        threshold = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        last_update = current_user.last_wanikani_update
+        if not last_update or last_update < threshold:
+            ingest.add_download_request(
+                current_user.wanikani_token, sqlite_conn)
 
 
 @app.route("/", methods=['get', 'post'])
