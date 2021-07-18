@@ -3,6 +3,7 @@ import classla
 import json
 from pathlib import Path
 import re
+import spacy
 from typing import Dict, List, Optional
 
 
@@ -55,6 +56,14 @@ class CroatianLemmatizer(LearnableExtractor):
     def _load_lemma_frequencies(freqs_file: Path):
         with open(freqs_file) as f:
             return json.load(f)
+
+
+class SpacyLemmatizer(LearnableExtractor):
+    def __init__(self, model: str):
+        self.nlp = spacy.load(model)
+
+    def extract_learnables(self, text: str) -> List[str]:
+        return [token.lemma_ for token in self.nlp(text)]
 
 
 class JapaneseKanjiExtractor(LearnableExtractor):

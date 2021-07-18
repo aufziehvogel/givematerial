@@ -9,7 +9,7 @@
 
     {% if wk_token %}
     <ul class="nav">
-        {% for language, name in [('hr', 'Croatian'), ('jp', 'Japanese')] %}
+        {% for language, name in supported_languages.items() %}
         <li class="nav-item">
             <a class="nav-link" href="{{ url_for('recommendations', language=language) }}">{{ name }}</a>
         </li>

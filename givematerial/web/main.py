@@ -13,6 +13,7 @@ import uuid
 from givematerial.cache import SqliteLearnableCache
 import givematerial.db.sqlite
 import givematerial.extractors
+import givematerial.languages
 import givematerial.learningstatus
 from givematerial import recommendation
 from givematerial.usermanagement import User
@@ -97,7 +98,9 @@ def logged_in(blueprint, token):
 
 @app.context_processor
 def global_config_variables():
-    return {}
+    return {
+        'supported_languages': givematerial.languages.SUPPORTED_LANGUAGES,
+    }
 
 
 def get_conn():
@@ -129,6 +132,8 @@ def get_learnable_extractor(language: str) \
         # Classla does not work inside flask, so we have to rely on
         # pre-parsed data from the cache
         return givematerial.extractors.NoopExtractor()
+    elif language == 'es':
+        return givematerial.extractors.SpacyLemmatizer('es_core_news_lg')
     else:
         raise NotImplementedError('Unsupported language')
 

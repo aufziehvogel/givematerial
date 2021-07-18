@@ -10,6 +10,7 @@ import uuid
 from typing import List, Iterable, Optional, Tuple
 
 import givematerial.extractors
+import givematerial.languages
 import givematerial.learningstatus
 
 
@@ -110,15 +111,8 @@ def calc_recommendations(language) -> List[TextStats]:
         raise NotImplementedError(
             f'Unknown learnable provider "{learnable_provider}"')
 
-    if language == 'hr':
-        learnable_extractor = givematerial.extractors.CroatianLemmatizer(
-            freqs_file)
-    elif language == 'jp':
-        learnable_extractor = givematerial.extractors.JapaneseKanjiExtractor()
-    else:
-        raise NotImplementedError(
-            f'Extractor for language "{language}" does not exist')
-
+    learnable_extractor = givematerial.languages.get_lemmatizer(
+        language, freqs_file=freqs_file)
     known_words = learning_status.get_known_learnables() \
         + known_learning_status.get_known_learnables()
     learning_words = learning_status.get_learning_learnables()
