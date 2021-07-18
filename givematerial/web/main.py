@@ -15,7 +15,9 @@ import givematerial.db.sqlite
 import givematerial.extractors
 import givematerial.learningstatus
 from givematerial import recommendation
+from givematerial.usermanagement import User
 from givematerial.web import ingest
+
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -29,15 +31,6 @@ app.register_blueprint(blueprint_gh, url_prefix="/login")
 
 DB_NAME = 'givematerial.sqlite'
 givematerial.db.sqlite.create_tables(sqlite3.connect(DB_NAME))
-
-
-class User(UserMixin):
-    def __init__(self, user_id: str, name: str, **kwargs):
-        self.id = user_id
-        self.display_name = name
-
-        self.wanikani_token = kwargs.get('wanikani_token', None)
-        self.last_wanikani_update = kwargs.get('last_wanikani_update', None)
 
 
 @login_manager.user_loader
