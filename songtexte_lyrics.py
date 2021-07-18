@@ -34,6 +34,8 @@ def fetch_lyrics(lyrics_url: str) -> Lyrics:
         xextract.String(css='.contentHeader h1 span.sub a').parse(r.text)[0]
     lyrics = xextract.String(css='#lyrics', attr='_all_text').parse(r.text)[0]
 
+    lyrics = re.sub(r'\<\!\-\-.+\]\]\>\*\/', '', lyrics, flags=re.DOTALL)
+
     return Lyrics(artist=artist, title=title, text=lyrics, url=lyrics_url)
 
 
