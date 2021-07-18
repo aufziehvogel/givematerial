@@ -49,6 +49,11 @@ def load_user(user_id):
         return None
 
 
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return redirect(url_for('login'))
+
+
 @oauth_authorized.connect_via(blueprint_gh)
 def logged_in(blueprint, token):
     if not token:
@@ -141,8 +146,8 @@ def check_wanikani_data():
 
 
 @app.route("/", methods=['get', 'post'])
+@login_required
 def home():
-    print(current_user.get_id())
     sqlite_conn = get_conn()
 
     wk_token = request.form.get('wktoken', default=None)
