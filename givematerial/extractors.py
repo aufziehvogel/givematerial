@@ -63,7 +63,12 @@ class SpacyLemmatizer(LearnableExtractor):
         self.nlp = spacy.load(model)
 
     def extract_learnables(self, text: str) -> List[str]:
-        return [token.lemma_ for token in self.nlp(text)]
+        lemmas = set()
+        for token in self.nlp(text):
+            if not re.match('^[^a-z]+$', token.lemma_):
+                lemmas.add(token.lemma_)
+
+        return list(lemmas)
 
 
 class JapaneseKanjiExtractor(LearnableExtractor):
