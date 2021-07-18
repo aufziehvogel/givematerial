@@ -2,6 +2,9 @@
 
 {% block content %}
     <div id="settings-area">
+        <p>You can specify your Wanikani token here (only read permissions required). We will then load your
+        Kanji progress from Wanikani and recommend texts based on your Kanji knowledge.</p>
+
         <form action="{{ url_for('settings') }}" method="post">
             <label for="wktoken">Wanikani Token:</label>
             <input type="text" id="wktoken" name="wktoken" {% if wk_token %}value="{{ wk_token }}"{% endif %} placeholder="00000000-0000-0000-0000-000000000000" size="40"/>
