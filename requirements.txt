@@ -3,5 +3,7 @@ classla
 flask
 flask-dance
 flask-login
+langdetect
 requests
+spacy
 xextract
